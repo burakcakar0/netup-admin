@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NetUP Admin</title>
+<style>
+:root {
+  --p:#134E4A;--pd:#0A3331;--ps:#E1ECEB;
+  --a:#E8B83C;--as:#FAEFD0;
+  --bg:#F6F1E6;--sur:#FFFFFF;
+  --ink:#1B2628;--is:#3D4647;--mu:#8B8479;
+  --co:#D9624A;--cs:#FBE7E0;
+  --gr:#5E8F4D;--gs:#E5EFDB;
+  --bd:rgba(27,38,40,0.1);
+  --sh:0 1px 3px rgba(27,38,40,0.06),0 8px 24px rgba(27,38,40,0.08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-size:14px}
+
+/* ── LOGIN ── */
+#loginScreen{position:fixed;inset:0;background:linear-gradient(135deg,var(--pd),var(--p));display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:24px}
+.login-card{background:#fff;border-radius:24px;padding:40px;width:360px;box-shadow:0 24px 60px rgba(0,0,0,0.25)}
+.login-logo{text-align:center;margin-bottom:28px}
+.login-logo .owl{font-size:48px;display:block;margin-bottom:8px}
+.login-logo h1{font-size:26px;font-weight:800;color:var(--p);letter-spacing:-0.5px}
+.login-logo p{font-size:13px;color:var(--mu);margin-top:4px}
+.login-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--is);margin-bottom:6px;display:block}
+.login-input{width:100%;padding:11px 14px;border:1.5px solid var(--bd);border-radius:10px;font-size:14px;color:var(--ink);outline:none;font-family:inherit;transition:border-color 0.15s;margin-bottom:14px}
+.login-input:focus{border-color:var(--p);box-shadow:0 0 0 3px var(--ps)}
+.login-btn{width:100%;padding:13px;background:var(--p);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s;margin-top:4px}
+.login-btn:hover{background:var(--pd);transform:translateY(-1px)}
+.login-err{background:var(--cs);color:var(--co);border-radius:10px;padding:10px 14px;font-size:12px;font-weight:600;margin-top:10px;display:none}
+
+/* ── LAYOUT ── */
+.sidebar{width:240px;background:var(--pd);height:100vh;position:fixed;left:0;top:0;display:flex;flex-direction:column;z-index:100}
+.sl{padding:22px 20px 18px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.sl-owl{font-size:28px;display:block;margin-bottom:6px}
+.sl-title{font-size:20px;font-weight:800;color:#fff;letter-spacing:-0.5px}
+.sl-sub{font-size:10px;color:rgba(255,255,255,0.35);margin-top:2px}
+.snav{padding:10px 0;flex:1;overflow-y:auto}
+.snl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.28);padding:12px 20px 5px}
+.ni{display:flex;align-items:center;gap:10px;padding:9px 20px;color:rgba(255,255,255,0.5);cursor:pointer;font-size:12px;font-weight:600;border:none;background:none;width:100%;text-align:left;transition:all 0.15s;position:relative}
+.ni:hover{color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.05)}
+.ni.active{color:#fff;background:rgba(255,255,255,0.1)}
+.ni.active::before{content:'';position:absolute;left:0;top:4px;bottom:4px;width:3px;background:var(--a);border-radius:0 3px 3px 0}
+.nb{margin-left:auto;background:var(--a);color:var(--ink);font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px}
+.sfoot{padding:14px 20px;border-top:1px solid rgba(255,255,255,0.08)}
+.sdot{width:7px;height:7px;border-radius:50%;background:var(--gr);display:inline-block;margin-right:5px}
+.sfoot-txt{font-size:11px;color:rgba(255,255,255,0.3)}
+.sfoot-usr{font-size:12px;font-weight:600;color:rgba(255,255,255,0.6);margin-bottom:6px;display:flex;align-items:center;justify-content:space-between}
+.logout-btn{font-size:10px;padding:3px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:none;color:rgba(255,255,255,0.4);cursor:pointer;font-family:inherit;transition:all 0.15s}
+.logout-btn:hover{border-color:var(--co);color:var(--co)}
+
+.main{margin-left:240px;min-height:100vh;display:flex;flex-direction:column}
+.topbar{background:var(--sur);border-bottom:1px solid var(--bd);padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.tbt{font-size:15px;font-weight:700;color:var(--ink)}
+.tbs{font-size:11px;color:var(--mu);margin-top:1px}
+.tbr{display:flex;align-items:center;gap:10px}
+.tbtn{padding:7px 14px;border-radius:10px;border:1.5px solid var(--p);background:transparent;color:var(--p);font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.15s;font-family:inherit}
+.tbtn:hover{background:var(--p);color:#fff}
+.tbtn.pr{background:var(--p);color:#fff}
+.tbtn.pr:hover{background:var(--pd)}
+.tbtn.ac{background:var(--a);color:var(--ink);border-color:var(--a)}
+.sbadge{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--mu)}
+
+.content{padding:26px;flex:1}
+.sec{display:none}.sec.active{display:block}
+
+/* ── STATS ── */
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.sc{background:var(--sur);border-radius:16px;border:1px solid var(--bd);padding:18px 20px;box-shadow:var(--sh)}
+.sl2{font-size:11px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px}
+.sv{font-size:28px;font-weight:800;color:var(--ink);line-height:1;margin-bottom:4px}
+.sch{font-size:11px;font-weight:600}
+.scp{color:var(--gr)}.scw{color:var(--a)}.scr{color:var(--co)}
+.sa{border-top:3px solid var(--a)}.sg2{border-top:3px solid var(--gr)}.sp2{border-top:3px solid var(--p)}.scl{border-top:3px solid var(--co)}
+
+/* ── CARD ── */
+.card{background:var(--sur);border-radius:18px;border:1px solid var(--bd);box-shadow:var(--sh);overflow:hidden}
+.ch{padding:16px 22px 13px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.ct{font-size:13px;font-weight:700;color:var(--ink)}
+.csub{font-size:11px;color:var(--mu);margin-top:2px}
+.cb{padding:20px 22px}
+
+/* ── GRID ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
+.g31{display:grid;grid-template-columns:2fr 1fr;gap:18px}
+
+/* ── FORM ── */
+.fg{margin-bottom:14px}
+.fl{display:block;font-size:11px;font-weight:700;color:var(--is);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.05em}
+.fi,.fs,.ft{width:100%;padding:9px 12px;border:1.5px solid var(--bd);border-radius:10px;font-size:13px;color:var(--ink);background:var(--sur);font-family:inherit;transition:border-color 0.15s;outline:none}
+.fi:focus,.fs:focus,.ft:focus{border-color:var(--p);box-shadow:0 0 0 3px var(--ps)}
+.ft{resize:vertical;min-height:85px;line-height:1.6}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+
+/* ── OPTIONS ── */
+.or{display:flex;align-items:center;gap:7px;margin-bottom:7px}
+.ok{width:28px;height:28px;border-radius:8px;background:var(--ps);color:var(--p);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s}
+.ok.correct{background:var(--gr);color:#fff}
+.oi{flex:1;padding:7px 11px;border:1.5px solid var(--bd);border-radius:9px;font-size:12px;color:var(--ink);font-family:inherit;outline:none;transition:border-color 0.15s}
+.oi:focus{border-color:var(--p)}
+.cr{width:17px;height:17px;accent-color:var(--gr);cursor:pointer;flex-shrink:0}
+
+/* ── CHIPS ── */
+.cg{display:flex;gap:7px;flex-wrap:wrap}
+.chip{padding:5px 13px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid var(--bd);background:var(--sur);color:var(--is);transition:all 0.15s;font-family:inherit}
+.chip:hover{border-color:var(--p);color:var(--p)}
+.chip.selected{background:var(--p);color:#fff;border-color:var(--p)}
+.chip.easy.selected{background:var(--gr);border-color:var(--gr)}
+.chip.medium.selected{background:var(--a);color:var(--ink);border-color:var(--a)}
+.chip.hard.selected{background:var(--co);border-color:var(--co)}
+
+/* ── BTNS ── */
+.bsub{width:100%;padding:12px;border-radius:12px;background:var(--p);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all 0.15s;font-family:inherit;margin-top:4px}
+.bsub:hover{background:var(--pd);transform:translateY(-1px)}
+.bsub:disabled{opacity:0.6;cursor:not-allowed;transform:none}
+.bsec{width:100%;padding:10px;border-radius:12px;background:var(--sur);color:var(--is);border:1.5px solid var(--bd);font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;font-family:inherit;margin-top:7px}
+.bsec:hover{border-color:var(--p);color:var(--p)}
+
+/* ── TABLE ── */
+.qt{width:100%;border-collapse:collapse}
+.qt th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--mu);padding:10px 14px;text-align:left;border-bottom:1px solid var(--bd);white-space:nowrap}
+.qt td{padding:11px 14px;border-bottom:1px solid var(--bd);font-size:12px;color:var(--is);vertical-align:middle}
+.qt tr:last-child td{border-bottom:none}
+.qt tr:hover td{background:var(--bg)}
+.qtx{font-size:12px;font-weight:600;color:var(--ink)}
+.qts{font-size:10px;color:var(--mu);margin-top:2px;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700}
+.bg{background:var(--gs);color:var(--gr)}
+.ba{background:var(--as);color:#7A5E10}
+.bc{background:var(--cs);color:var(--co)}
+.bp{background:var(--ps);color:var(--p)}
+.bm{background:#F0EDE8;color:var(--mu)}
+
+/* ── ACTION ── */
+.ab{padding:4px 9px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--bd);background:var(--sur);color:var(--is);transition:all 0.15s;font-family:inherit}
+.ab:hover{border-color:var(--p);color:var(--p)}
+.ab.apr:hover{background:var(--gr);border-color:var(--gr);color:#fff}
+.ab.del:hover{background:var(--co);border-color:var(--co);color:#fff}
+
+/* ── FILTER ── */
+.fb{display:flex;gap:9px;padding:13px 22px;border-bottom:1px solid var(--bd);align-items:center}
+.sw{position:relative;flex:1}
+.si{width:100%;padding:8px 12px 8px 32px;border:1.5px solid var(--bd);border-radius:9px;font-size:12px;color:var(--ink);background:var(--bg);font-family:inherit;outline:none}
+.sico{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--mu);font-size:13px;pointer-events:none}
+.fsel{padding:8px 11px;border:1.5px solid var(--bd);border-radius:9px;font-size:12px;font-weight:600;color:var(--is);background:var(--bg);font-family:inherit;cursor:pointer;outline:none}
+
+/* ── PREVIEW ── */
+.pcard{background:linear-gradient(135deg,var(--pd),var(--p));border-radius:16px;padding:17px;color:#fff;margin-bottom:14px}
+.plbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.45);margin-bottom:7px}
+.pq{font-size:12px;line-height:1.6;color:rgba(255,255,255,0.9);margin-bottom:11px}
+.po{display:flex;flex-direction:column;gap:5px}
+.poi{font-size:11px;padding:5px 10px;border-radius:8px;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.65);display:flex;align-items:center;gap:5px}
+.poi.cor{background:rgba(94,143,77,0.3);color:#7FD465}
+.pk{font-size:10px;font-weight:800;width:14px;text-align:center;opacity:0.55;flex-shrink:0}
+
+/* ── INFO / CONFIG ── */
+.inforow{display:flex;align-items:flex-start;gap:9px;padding:10px 12px;background:var(--as);border-radius:10px;border:1px solid rgba(232,184,60,0.3);font-size:11px;color:#7A5E10;font-weight:600;line-height:1.5;margin-bottom:13px}
+.configbox{background:var(--ps);border:1.5px solid var(--p);border-radius:12px;padding:13px 15px;margin-bottom:14px}
+.connok{font-size:12px;font-weight:700;color:var(--gr);display:flex;align-items:center;gap:6px}
+.connerr{font-size:12px;font-weight:700;color:var(--co)}
+
+/* ── TABS ── */
+.tbar{display:flex;gap:3px;padding:13px 22px 0;border-bottom:1px solid var(--bd)}
+.tbut{padding:8px 15px 11px;font-size:12px;font-weight:600;color:var(--mu);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;font-family:inherit;transition:all 0.15s}
+.tbut.active{color:var(--p);border-bottom-color:var(--p)}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:22px;right:22px;background:var(--ink);color:#fff;padding:11px 17px;border-radius:12px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:7px;box-shadow:0 8px 32px rgba(0,0,0,0.3);z-index:9998;transform:translateY(80px);opacity:0;transition:all 0.3s;max-width:320px}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.ok{background:var(--gr)}
+.toast.err{background:var(--co)}
+.toast.info{background:var(--p)}
+
+/* ── PROGRESS ── */
+.pw{background:var(--bg);border-radius:6px;height:5px;overflow:hidden}
+.pf{height:100%;border-radius:6px;background:var(--gr);transition:width 0.8s}
+
+/* ── SYNC STATUS ── */
+.sync-bar{display:flex;align-items:center;gap:8px;padding:10px 22px;background:var(--ps);border-bottom:1px solid rgba(19,78,74,0.15);font-size:12px;font-weight:600;color:var(--p)}
+.sync-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.sync-dot.ok{background:var(--gr)}
+.sync-dot.warn{background:var(--a)}
+.sync-dot.err{background:var(--co)}
+
+/* ── SHEETS ── */
+.sheets-status{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;border:1px solid var(--bd);background:var(--bg);font-size:12px;font-weight:600;margin-bottom:12px}
+
+/* ── UPLOAD DROP ── */
+.drop{border:2px dashed var(--bd);border-radius:14px;padding:36px;text-align:center;cursor:pointer;margin-bottom:14px;transition:all 0.2s}
+.drop:hover{border-color:var(--p)}
+
+/* ── SCROLL ── */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:rgba(27,38,40,0.12);border-radius:4px}
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN ══ -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <span class="owl">🦉</span>
+      <h1>NetUP Admin</h1>
+      <p>Soru Yönetim Paneli</p>
+    </div>
+    <label class="login-label">Kullanıcı Adı</label>
+    <input class="login-input" id="loginUser" placeholder="admin" type="text" onkeydown="if(event.key==='Enter')doLogin()">
+    <label class="login-label">Şifre</label>
+    <input class="login-input" id="loginPass" placeholder="••••••••" type="password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">Giriş Yap →</button>
+    <div class="login-err" id="loginErr">Hatalı kullanıcı adı veya şifre</div>
+    <div style="text-align:center;font-size:10px;color:#aaa;margin-top:16px">Varsayılan: admin / netup2024</div>
+  </div>
+</div>
+
+<!-- ══ SIDEBAR ══ -->
+<aside class="sidebar" id="appSidebar" style="display:none">
+  <div class="sl">
+    <span class="sl-owl">🦉</span>
+    <div class="sl-title">NetUP Admin</div>
+    <div class="sl-sub">Soru Yönetim Paneli v2.0</div>
+  </div>
+  <nav class="snav">
+    <div class="snl">Ana Menü</div>
+    <button class="ni active" onclick="showSec('dashboard',this)">📊 Dashboard</button>
+    <button class="ni" onclick="showSec('add',this)">➕ Soru Ekle</button>
+    <button class="ni" onclick="showSec('list',this)">📚 Soru Listesi <span class="nb" id="pendBadge">0</span></button>
+    <div class="snl">Entegrasyonlar</div>
+    <button class="ni" onclick="showSec('supabase',this)">🔗 Supabase</button>
+    <button class="ni" onclick="showSec('sheets',this)">📊 Google Sheets</button>
+    <button class="ni" onclick="showSec('bulk',this)">📤 Toplu Aktar</button>
+    <div class="snl">Hesap</div>
+    <button class="ni" onclick="showSec('settings',this)">⚙️ Ayarlar</button>
+  </nav>
+  <div class="sfoot">
+    <div class="sfoot-usr">
+      <span id="footUser">admin</span>
+      <button class="logout-btn" onclick="doLogout()">Çıkış</button>
+    </div>
+    <div class="sfoot-txt"><span class="sdot"></span> Supabase bağlı</div>
+    <div class="sfoot-txt" style="margin-top:4px" id="footSync">0 yerel · 0 senkronize</div>
+  </div>
+</aside>
+
+<!-- ══ MAIN ══ -->
+<div class="main" id="appMain" style="display:none">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div>
+      <div class="tbt" id="ttl">Dashboard</div>
+      <div class="tbs" id="tsub">Genel bakış</div>
+    </div>
+    <div class="tbr">
+      <div class="sbadge" id="sbStatus"><span class="sync-dot ok"></span> Supabase bağlı</div>
+      <button class="tbtn" onclick="showSec('add',null)">➕ Soru Ekle</button>
+      <button class="tbtn pr" onclick="syncAll()">🔄 Senkronize Et</button>
+    </div>
+  </div>
+
+  <!-- SYNC BAR -->
+  <div class="sync-bar" id="syncBar" style="display:none">
+    <span class="sync-dot warn"></span>
+    <span id="syncBarTxt">0 soru bekliyor...</span>
+    <button class="tbtn" style="padding:4px 10px;font-size:11px;margin-left:auto" onclick="syncAll()">Şimdi Yükle →</button>
+  </div>
+
+  <div class="content">
+
+    <!-- ── DASHBOARD ── -->
+    <div class="sec active" id="sec-dashboard">
+      <div class="sg">
+        <div class="sc sp2"><div class="sl2">Toplam Soru</div><div class="sv" id="dTotal">0</div><div class="sch scp">↑ Yerel kayıt</div></div>
+        <div class="sc sg2"><div class="sl2">Supabase'de</div><div class="sv" id="dSync">0</div><div class="sch scp">☁ Senkronize</div></div>
+        <div class="sc sa"><div class="sl2">Bekleyen</div><div class="sv" id="dPend">0</div><div class="sch scw">⏳ Onay bekliyor</div></div>
+        <div class="sc scl"><div class="sl2">Raporlanan</div><div class="sv" id="dFlag">0</div><div class="sch scr">⚠ Dikkat</div></div>
+      </div>
+
+      <div class="g2">
+        <div class="card">
+          <div class="ch"><div><div class="ct">Ders Dağılımı</div><div class="csub">Konuya göre</div></div></div>
+          <div class="cb" style="padding:14px 22px" id="dChart"></div>
+        </div>
+        <div class="card">
+          <div class="ch">
+            <div><div class="ct">Son Eklenenler</div><div class="csub">Son 5 soru</div></div>
+            <button class="tbtn" style="font-size:11px;padding:5px 10px" onclick="showSec('list',null)">Tümü →</button>
+          </div>
+          <div id="dRecent"></div>
+        </div>
+      </div>
+
+      <!-- Sync durumu -->
+      <div class="card">
+        <div class="ch"><div class="ct">Senkronizasyon Durumu</div></div>
+        <div class="cb" style="display:flex;gap:14px;flex-wrap:wrap">
+          <div style="flex:1;min-width:180px;background:var(--gs);border-radius:12px;padding:14px 16px">
+            <div style="font-size:11px;font-weight:700;color:var(--gr);margin-bottom:4px">☁ Supabase'de</div>
+            <div style="font-size:26px;font-weight:800;color:var(--gr)" id="dSyncCount">0</div>
+            <div style="font-size:11px;color:var(--gr)">soru yüklendi</div>
+          </div>
+          <div style="flex:1;min-width:180px;background:var(--as);border-radius:12px;padding:14px 16px">
+            <div style="font-size:11px;font-weight:700;color:#7A5E10;margin-bottom:4px">💾 Yerel</div>
+            <div style="font-size:26px;font-weight:800;color:#7A5E10" id="dLocalCount">0</div>
+            <div style="font-size:11px;color:#7A5E10">yüklenmedi</div>
+          </div>
+          <div style="flex:1;min-width:180px;background:var(--ps);border-radius:12px;padding:14px 16px">
+            <div style="font-size:11px;font-weight:700;color:var(--p);margin-bottom:4px">📊 Sheets</div>
+            <div style="font-size:26px;font-weight:800;color:var(--p)" id="dSheetsCount">—</div>
+            <div style="font-size:11px;color:var(--p)">yedeklendi</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SORU EKLE ── -->
+    <div class="sec" id="sec-add">
+      <div class="g31">
+        <div class="card">
+          <div class="tbar">
+            <button class="tbut active" id="tab-form" onclick="switchTab('form')">📝 Form</button>
+            <button class="tbut" id="tab-json" onclick="switchTab('json')">{ } JSON</button>
+          </div>
+          <div id="formPanel" class="cb">
+            <div class="inforow">⚠️ ÖSYM soru metni ekleme — telif ihlali. Sadece özgün sorular yaz.</div>
+
+            <div class="fg">
+              <label class="fl">Soru Metni <span style="color:var(--co)">*</span></label>
+              <textarea class="ft" id="qText" placeholder="KPSS tarzı özgün soru metni..." style="min-height:100px" oninput="updPrev()"></textarea>
+            </div>
+
+            <div class="fg2">
+              <div class="fg">
+                <label class="fl">Ders</label>
+                <select class="fs" id="qSubj" onchange="updPrev()">
+                  <option value="turkce">📝 Türkçe</option>
+                  <option value="matematik">🔢 Matematik</option>
+                  <option value="tarih">🏛️ Tarih</option>
+                  <option value="cografya">🗺️ Coğrafya</option>
+                  <option value="vatandaslik">⚖️ Vatandaşlık</option>
+                  <option value="guncel">📰 Güncel Bilgiler</option>
+                  <option value="din">☪️ Din Kültürü</option>
+                </select>
+              </div>
+              <div class="fg">
+                <label class="fl">Sınav Türü</label>
+                <select class="fs" id="qExam">
+                  <option value="kpss_lisans">KPSS Lisans</option>
+                  <option value="kpss_ortaogretim">KPSS Ortaöğretim</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="fg">
+              <label class="fl">Zorluk</label>
+              <div class="cg" id="diffGrp">
+                <button class="chip easy selected" onclick="setDiff('easy',this)">🟢 Kolay</button>
+                <button class="chip medium" onclick="setDiff('medium',this)">🟡 Orta</button>
+                <button class="chip hard" onclick="setDiff('hard',this)">🔴 Zor</button>
+              </div>
+            </div>
+
+            <div class="fg">
+              <label class="fl" style="display:flex;justify-content:space-between">
+                <span>Seçenekler <span style="color:var(--co)">*</span></span>
+                <span style="font-size:10px;font-weight:600;color:var(--mu)">● doğru cevabı işaretle</span>
+              </label>
+              <div id="opts">
+                <div class="or"><div class="ok" id="ok-A">A</div><input class="oi" id="oA" placeholder="A şıkkı..." oninput="updPrev()"><input type="radio" name="ans" value="a" class="cr" onchange="setAns('A')"></div>
+                <div class="or"><div class="ok" id="ok-B">B</div><input class="oi" id="oB" placeholder="B şıkkı..." oninput="updPrev()"><input type="radio" name="ans" value="b" class="cr" onchange="setAns('B')"></div>
+                <div class="or"><div class="ok" id="ok-C">C</div><input class="oi" id="oC" placeholder="C şıkkı..." oninput="updPrev()"><input type="radio" name="ans" value="c" class="cr" onchange="setAns('C')"></div>
+                <div class="or"><div class="ok" id="ok-D">D</div><input class="oi" id="oD" placeholder="D şıkkı..." oninput="updPrev()"><input type="radio" name="ans" value="d" class="cr" onchange="setAns('D')"></div>
+                <div class="or"><div class="ok" id="ok-E">E</div><input class="oi" id="oE" placeholder="E şıkkı (opsiyonel)..." oninput="updPrev()"><input type="radio" name="ans" value="e" class="cr" onchange="setAns('E')"></div>
+              </div>
+            </div>
+
+            <div class="fg">
+              <label class="fl">Açıklama (Canonical) <span style="color:var(--co)">*</span></label>
+              <textarea class="ft" id="qExp" placeholder="AI güvenlik için zorunlu — doğru cevabın açıklaması..."></textarea>
+            </div>
+
+            <div class="fg2">
+              <div class="fg">
+                <label class="fl">Durum</label>
+                <select class="fs" id="qStat">
+                  <option value="approved">✅ Onaylı</option>
+                  <option value="pending_review">⏳ Bekliyor</option>
+                </select>
+              </div>
+              <div class="fg">
+                <label class="fl">Kaynak</label>
+                <select class="fs" id="qSrc">
+                  <option value="original_editor">✍️ Editör Özgün</option>
+                  <option value="ai_generated_reviewed">🤖 AI + Onaylı</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="fg" style="display:flex;align-items:center;gap:8px">
+              <input type="checkbox" id="autoSync" checked style="accent-color:var(--p);width:16px;height:16px">
+              <label for="autoSync" style="font-size:12px;font-weight:600;color:var(--is);cursor:pointer">Kaydedince anında Supabase'e yükle</label>
+            </div>
+            <div class="fg" style="display:flex;align-items:center;gap:8px">
+              <input type="checkbox" id="sheetsSync" checked style="accent-color:var(--p);width:16px;height:16px">
+              <label for="sheetsSync" style="font-size:12px;font-weight:600;color:var(--is);cursor:pointer">Google Sheets'e de yedekle</label>
+            </div>
+
+            <button class="bsub" id="saveBtn" onclick="saveQ()">✅ Kaydet & Yükle</button>
+            <button class="bsec" onclick="resetForm()">🔄 Formu Temizle</button>
+          </div>
+
+          <div id="jsonPanel" class="cb" style="display:none">
+            <div class="inforow">📋 JSON olarak yapıştır. Tek obje veya dizi [ ] kabul edilir.</div>
+            <textarea class="ft" id="jsonIn" style="min-height:280px;font-family:monospace;font-size:12px" placeholder='{"question_text":"...","option_a":"...","option_b":"...","option_c":"...","option_d":"...","correct_option":"a","subject":"turkce","difficulty":"medium","canonical_explanation":"..."}'></textarea>
+            <button class="bsub" style="margin-top:12px" onclick="impJSON()">📤 İçe Aktar</button>
+          </div>
+        </div>
+
+        <!-- PREVIEW -->
+        <div>
+          <div class="card" style="position:sticky;top:80px">
+            <div class="ch"><div><div class="ct">👁 Önizleme</div><div class="csub">Uygulama görünümü</div></div></div>
+            <div class="cb">
+              <div class="pcard">
+                <div class="plbl" id="pLbl">📝 Türkçe · Kolay · ✓ Editör</div>
+                <div class="pq" id="pQ">Soru yazılmayı bekliyor...</div>
+                <div class="po" id="pOpts">
+                  <div class="poi"><span class="pk">A</span> —</div>
+                  <div class="poi"><span class="pk">B</span> —</div>
+                </div>
+              </div>
+              <div style="font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:7px">Özet</div>
+              <div style="display:flex;flex-direction:column;gap:5px">
+                <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--mu)">Ders</span><span style="font-weight:600" id="pSubj">Türkçe</span></div>
+                <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--mu)">Zorluk</span><span style="font-weight:600" id="pDiff">Kolay</span></div>
+                <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--mu)">Doğru</span><span style="font-weight:600;color:var(--gr)" id="pAns">—</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── LIST ── -->
+    <div class="sec" id="sec-list">
+      <div class="card">
+        <div class="fb">
+          <div class="sw"><span class="sico">🔍</span><input class="si" placeholder="Soru ara..." oninput="fSearch(this.value)"></div>
+          <select class="fsel" onchange="fSubj(this.value)">
+            <option value="">Tüm dersler</option>
+            <option value="turkce">Türkçe</option>
+            <option value="matematik">Matematik</option>
+            <option value="tarih">Tarih</option>
+            <option value="cografya">Coğrafya</option>
+            <option value="vatandaslik">Vatandaşlık</option>
+          </select>
+          <select class="fsel" onchange="fStat(this.value)">
+            <option value="">Tüm durumlar</option>
+            <option value="approved">Onaylı</option>
+            <option value="pending_review">Bekleyen</option>
+          </select>
+          <select class="fsel" onchange="fSync(this.value)">
+            <option value="">Tümü</option>
+            <option value="synced">Senkronize</option>
+            <option value="local">Yerel</option>
+          </select>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="qt">
+            <thead><tr>
+              <th>#</th><th>Soru</th><th>Ders</th><th>Zorluk</th><th>Durum</th>
+              <th>Sync</th><th>Doğru</th><th>Tarih</th><th>İşlem</th>
+            </tr></thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+        <div style="padding:13px 22px;border-top:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:12px;color:var(--mu)" id="tCount">0 soru</span>
+          <div style="display:flex;gap:7px">
+            <button class="ab" onclick="expCSV()">📥 CSV</button>
+            <button class="ab" onclick="expJSON()">📥 JSON</button>
+            <button class="ab" onclick="syncAll()" style="color:var(--p);border-color:var(--p)">☁ Tümünü Yükle</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SUPABASE ── -->
+    <div class="sec" id="sec-supabase">
+      <div style="max-width:580px;display:flex;flex-direction:column;gap:16px">
+        <div class="card">
+          <div class="ch"><div><div class="ct">🔗 Supabase Bağlantısı</div><div class="csub">Proje ayarları</div></div></div>
+          <div class="cb">
+            <div class="inforow">🔒 Bilgiler sadece tarayıcında (localStorage) saklanır.</div>
+            <div class="fg"><label class="fl">Project URL</label><input class="fi" id="sbUrl" placeholder="https://xxxx.supabase.co" type="url"></div>
+            <div class="fg"><label class="fl">Anon Public Key</label><input class="fi" id="sbKey" placeholder="eyJhbGci..." type="password"></div>
+            <button class="bsub" onclick="saveSB()">💾 Kaydet</button>
+            <button class="bsec" onclick="testSB()">🔗 Bağlantıyı Test Et</button>
+            <div id="sbStatus" style="margin-top:12px;padding:11px 14px;border-radius:10px;background:var(--gs);font-size:12px;font-weight:700;color:var(--gr)">
+              <span class="sdot"></span> Test edilmedi
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="ch"><div class="ct">📋 Kurulum Adımları</div></div>
+          <div class="cb">
+            <div style="font-size:12px;color:var(--is);line-height:1.8">
+              <div style="display:flex;gap:10px;margin-bottom:10px"><div style="width:22px;height:22px;background:var(--p);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0">1</div><div>supabase.com → projen → <b>Settings → API</b></div></div>
+              <div style="display:flex;gap:10px;margin-bottom:10px"><div style="width:22px;height:22px;background:var(--p);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0">2</div><div><b>Project URL</b> ve <b>anon public key</b>'i kopyala</div></div>
+              <div style="display:flex;gap:10px;margin-bottom:10px"><div style="width:22px;height:22px;background:var(--p);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0">3</div><div>Settings → API → <b>Allowed Origins</b>'e Vercel URL'ini ekle</div></div>
+              <div style="display:flex;gap:10px"><div style="width:22px;height:22px;background:var(--gr);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0">✓</div><div>Soru ekleme anında Supabase'e gider!</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SHEETS ── -->
+    <div class="sec" id="sec-sheets">
+      <div style="max-width:580px;display:flex;flex-direction:column;gap:16px">
+        <div class="card">
+          <div class="ch"><div><div class="ct">📊 Google Sheets Yedek</div><div class="csub">Otomatik yedekleme</div></div></div>
+          <div class="cb">
+            <div class="inforow">📋 Google Apps Script ile soru verilerini Sheets'e yedekle. Sadece ek güvence — ana veri Supabase'de.</div>
+
+            <div class="fg"><label class="fl">Apps Script Web App URL</label><input class="fi" id="shUrl" placeholder="https://script.google.com/macros/s/.../exec" type="url"></div>
+
+            <div class="fg"><label class="fl">Google Sheets ID</label><input class="fi" id="shId" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms"></div>
+
+            <button class="bsub" onclick="saveSH()">💾 Kaydet</button>
+            <button class="bsec" onclick="testSH()">🔗 Test Et</button>
+            <button class="bsec" onclick="backupNow()">📤 Şimdi Yedekle (Tüm Sorular)</button>
+
+            <div id="shStatus" style="margin-top:12px;padding:11px 14px;border-radius:10px;background:var(--bg);border:1px solid var(--bd);font-size:12px;font-weight:600;color:var(--mu)">
+              ⏳ Bağlantı test edilmedi
+            </div>
+
+            <div style="margin-top:16px;padding:14px;background:var(--as);border-radius:12px;border:1px solid rgba(232,184,60,0.3)">
+              <div style="font-size:11px;font-weight:700;color:#7A5E10;margin-bottom:10px">📋 Apps Script Kodu (Sheets'e yapıştır)</div>
+              <textarea style="width:100%;font-family:monospace;font-size:10px;height:130px;border:1px solid rgba(232,184,60,0.3);border-radius:8px;padding:8px;background:rgba(255,255,255,0.6);color:var(--ink);resize:none" readonly>function doPost(e) {
+  var sheet = SpreadsheetApp.openById('SHEETS_ID').getSheetByName('Questions') || SpreadsheetApp.openById('SHEETS_ID').insertSheet('Questions');
+  var data = JSON.parse(e.postData.contents);
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(['ID','Soru','A','B','C','D','E','Doğru','Ders','Zorluk','Durum','Açıklama','Tarih']);
+  }
+  data.forEach(function(q) {
+    sheet.appendRow([q.id,q.question_text,q.option_a,q.option_b,q.option_c,q.option_d,q.option_e||'',q.correct_option,q.subject,q.difficulty,q.status,q.canonical_explanation,q.created_at]);
+  });
+  return ContentService.createTextOutput(JSON.stringify({ok:true,count:data.length})).setMimeType(ContentService.MimeType.JSON);
+}
+function doGet(e) { return doPost(e); }</textarea>
+              <div style="font-size:10px;color:#7A5E10;margin-top:6px">
+                1. Google Sheets aç → Extensions → Apps Script → Bu kodu yapıştır<br>
+                2. Deploy → Web App → Execute as: Me → Who has access: Anyone<br>
+                3. Deploy URL'ini yukarıya yapıştır
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── BULK ── -->
+    <div class="sec" id="sec-bulk">
+      <div class="card" style="max-width:680px">
+        <div class="ch"><div><div class="ct">📤 Toplu İçe Aktar</div><div class="csub">CSV veya JSON</div></div></div>
+        <div class="cb">
+          <div class="inforow">📋 CSV: question_text, option_a, option_b, option_c, option_d, option_e, correct_option, subject, difficulty, canonical_explanation</div>
+          <div class="drop" onclick="document.getElementById('fileIn').click()" id="dropZone" ondragover="event.preventDefault();this.style.borderColor='var(--p)'" ondragleave="this.style.borderColor=''" ondrop="handleDrop(event)">
+            <div style="font-size:32px;margin-bottom:10px">📁</div>
+            <div style="font-size:14px;font-weight:700;color:var(--is)">CSV veya JSON dosyası sürükle</div>
+            <div style="font-size:12px;color:var(--mu);margin-top:4px">veya tıkla seç</div>
+            <input type="file" id="fileIn" accept=".csv,.json" style="display:none" onchange="handleFile(this)">
+          </div>
+          <div id="bulkPrev" style="display:none">
+            <div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:8px">Önizleme:</div>
+            <div id="bulkPrevContent"></div>
+            <button class="bsub" onclick="impBulk()">✅ Tümünü İçe Aktar & Yükle</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SETTINGS ── -->
+    <div class="sec" id="sec-settings">
+      <div style="max-width:480px;display:flex;flex-direction:column;gap:16px">
+        <div class="card">
+          <div class="ch"><div class="ct">🔐 Giriş Bilgileri</div></div>
+          <div class="cb">
+            <div class="fg"><label class="fl">Kullanıcı Adı</label><input class="fi" id="setUser" placeholder="admin"></div>
+            <div class="fg"><label class="fl">Yeni Şifre</label><input class="fi" id="setPass" type="password" placeholder="Yeni şifre..."></div>
+            <div class="fg"><label class="fl">Şifre Tekrar</label><input class="fi" id="setPass2" type="password" placeholder="Tekrar gir..."></div>
+            <button class="bsub" onclick="saveCreds()">💾 Bilgileri Güncelle</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ch"><div class="ct">🗑 Veri Yönetimi</div></div>
+          <div class="cb">
+            <button class="bsec" onclick="expJSON()">📥 Tüm Soruları JSON İndir</button>
+            <button class="bsec" onclick="expCSV()">📥 Tüm Soruları CSV İndir</button>
+            <button class="bsec" style="color:var(--co);border-color:var(--co)" onclick="clearLocal()">⚠️ Yerel Veriyi Temizle</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+const SUBS={turkce:{n:'Türkçe',e:'📝'},matematik:{n:'Matematik',e:'🔢'},tarih:{n:'Tarih',e:'🏛️'},cografya:{n:'Coğrafya',e:'🗺️'},vatandaslik:{n:'Vatandaşlık',e:'⚖️'},guncel:{n:'Güncel',e:'📰'},din:{n:'Din Kültürü',e:'☪️'}};
+const DIFF={easy:'Kolay',medium:'Orta',hard:'Zor'};
+const STAT={approved:'Onaylı',pending_review:'Bekliyor',flagged:'Raporlanan'};
+
+let qs=JSON.parse(localStorage.getItem('nu_qs')||'[]');
+let cfg=JSON.parse(localStorage.getItem('nu_cfg')||'{}');
+let creds=JSON.parse(localStorage.getItem('nu_creds')||'{"user":"admin","pass":"netup2024"}');
+let curDiff='easy',curAns=null;
+let fSrch='',fSub='',fSt='',fSy='';
+
+function uid(){return'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==='x'?r:(r&0x3|0x8)).toString(16)})}
+
+/* ── AUTH ── */
+function doLogin(){
+  const u=document.getElementById('loginUser').value;
+  const p=document.getElementById('loginPass').value;
+  if(u===creds.user&&p===creds.pass){
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('appSidebar').style.display='flex';
+    document.getElementById('appMain').style.display='flex';
+    document.getElementById('footUser').textContent=u;
+    loadConfig();
+    updateDash();
+  } else {
+    document.getElementById('loginErr').style.display='block';
+    setTimeout(()=>document.getElementById('loginErr').style.display='none',3000);
+  }
+}
+
+function doLogout(){
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('appSidebar').style.display='none';
+  document.getElementById('appMain').style.display='none';
+  document.getElementById('loginUser').value='';
+  document.getElementById('loginPass').value='';
+}
+
+function saveCreds(){
+  const u=document.getElementById('setUser').value.trim();
+  const p=document.getElementById('setPass').value;
+  const p2=document.getElementById('setPass2').value;
+  if(p&&p!==p2){toast('Şifreler eşleşmiyor!','err');return}
+  if(u)creds.user=u;
+  if(p)creds.pass=p;
+  localStorage.setItem('nu_creds',JSON.stringify(creds));
+  toast('✅ Bilgiler güncellendi!','ok');
+}
+
+/* ── NAV ── */
+function showSec(id,btn){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  const map={dashboard:'Dashboard',add:'Soru Ekle',list:'Soru Listesi',supabase:'Supabase Bağlantısı',sheets:'Google Sheets',bulk:'Toplu Aktar',settings:'Ayarlar'};
+  const sub={dashboard:'Genel bakış',add:'Yeni özgün KPSS sorusu oluştur',list:'Soru yönetimi',supabase:'Supabase entegrasyonu',sheets:'Google Sheets yedek',bulk:'CSV / JSON içe aktar',settings:'Panel ayarları'};
+  document.getElementById('ttl').textContent=map[id]||id;
+  document.getElementById('tsub').textContent=sub[id]||'';
+  if(id==='dashboard')updateDash();
+  if(id==='list')renderTable();
+}
+
+function switchTab(t){
+  ['form','json'].forEach(x=>{
+    document.getElementById('tab-'+x).classList.toggle('active',x===t);
+    document.getElementById(x==='form'?'formPanel':'jsonPanel').style.display=x===t?'':'none';
+  });
+}
+
+/* ── FORM ── */
+function setDiff(v,el){
+  curDiff=v;
+  document.querySelectorAll('#diffGrp .chip').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('pDiff').textContent=DIFF[v];
+  updPrev();
+}
+
+function setAns(k){
+  curAns=k;
+  ['A','B','C','D','E'].forEach(x=>{
+    const el=document.getElementById('ok-'+x);
+    if(el)el.classList.toggle('correct',x===k);
+  });
+  document.getElementById('pAns').textContent=k;
+  updPrev();
+}
+
+function updPrev(){
+  const qt=document.getElementById('qText').value;
+  document.getElementById('pQ').textContent=qt||'Soru yazılmayı bekliyor...';
+  const opts=['A','B','C','D','E'].map(k=>({k,t:document.getElementById('o'+k)?.value||''})).filter(o=>o.t);
+  document.getElementById('pOpts').innerHTML=opts.map(o=>`<div class="poi ${o.k===curAns?'cor':''}"><span class="pk">${o.k}</span>${o.t}</div>`).join('')||'<div class="poi"><span class="pk">A</span>—</div><div class="poi"><span class="pk">B</span>—</div>';
+  const s=SUBS[document.getElementById('qSubj')?.value]||SUBS.turkce;
+  document.getElementById('pLbl').textContent=`${s.e} ${s.n} · ${DIFF[curDiff]} · ✓ Editör`;
+  document.getElementById('pSubj').textContent=s.n;
+}
+
+function resetForm(){
+  document.getElementById('qText').value='';
+  ['A','B','C','D','E'].forEach(k=>{
+    const el=document.getElementById('o'+k);if(el)el.value='';
+    const ok=document.getElementById('ok-'+k);if(ok)ok.classList.remove('correct');
+  });
+  document.querySelectorAll('input[name="ans"]').forEach(r=>r.checked=false);
+  document.getElementById('qExp').value='';
+  curAns=null;
+  document.getElementById('pAns').textContent='—';
+  setDiff('easy',document.querySelector('.chip.easy'));
+  updPrev();
+}
+
+async function saveQ(){
+  const qt=document.getElementById('qText').value.trim();
+  if(!qt){toast('Soru metni boş!','err');return}
+  if(!curAns){toast('Doğru cevabı işaretle!','err');return}
+  const exp=document.getElementById('qExp').value.trim();
+  if(!exp){toast('Canonical açıklama zorunlu!','err');return}
+
+  const q={
+    id:uid(),
+    question_text:qt,
+    option_a:document.getElementById('oA').value,
+    option_b:document.getElementById('oB').value,
+    option_c:document.getElementById('oC').value,
+    option_d:document.getElementById('oD').value,
+    option_e:document.getElementById('oE').value||null,
+    correct_option:curAns.toLowerCase(),
+    subject:document.getElementById('qSubj').value,
+    exam_type:document.getElementById('qExam').value,
+    difficulty:curDiff,
+    source_type:document.getElementById('qSrc').value,
+    status:document.getElementById('qStat').value,
+    canonical_explanation:exp,
+    created_at:new Date().toISOString(),
+    synced:false
+  };
+
+  qs.unshift(q);
+  save();
+
+  const autoSync=document.getElementById('autoSync').checked;
+  const shSync=document.getElementById('sheetsSync').checked;
+
+  if(autoSync&&cfg.sbUrl&&cfg.sbKey){
+    await pushToSB([q]);
+  }else{
+    toast('💾 Yerel kaydedildi (Supabase ayarı yok)','info');
+  }
+
+  if(shSync&&cfg.shUrl){
+    await pushToSheets([q]);
+  }
+
+  resetForm();
+  updateDash();
+}
+
+/* ── SUPABASE ── */
+async function pushToSB(arr){
+  if(!cfg.sbUrl||!cfg.sbKey){return false}
+  try{
+    const payloads=arr.map(q=>{
+      const p={...q};delete p.synced;delete p.id;
+      if(!p.option_e)delete p.option_e;
+      return p;
+    });
+    const res=await fetch(`${cfg.sbUrl}/rest/v1/questions`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':cfg.sbKey,'Authorization':'Bearer '+cfg.sbKey,'Prefer':'return=minimal'},
+      body:JSON.stringify(payloads)
+    });
+    if(res.ok){
+      arr.forEach(q=>{const idx=qs.findIndex(x=>x.id===q.id);if(idx>=0)qs[idx].synced=true});
+      save();
+      toast(`☁ ${arr.length} soru Supabase'e yüklendi!`,'ok');
+      return true;
+    }else{
+      const err=await res.text();
+      toast('⚠️ Supabase: '+err.slice(0,60),'err');
+      return false;
+    }
+  }catch(e){
+    toast('⚠️ Bağlantı hatası: '+e.message,'err');
+    return false;
+  }
+}
+
+async function syncAll(){
+  const unsync=qs.filter(q=>!q.synced);
+  if(!unsync.length){toast('✅ Tüm sorular senkronize!','ok');return}
+  if(!cfg.sbUrl||!cfg.sbKey){toast('Önce Supabase ayarlarını yap!','err');return}
+  toast(`${unsync.length} soru yükleniyor...`,'info');
+  const ok=await pushToSB(unsync);
+  if(ok)updateDash();
+}
+
+async function testSB(){
+  if(!cfg.sbUrl||!cfg.sbKey){toast('URL ve key gerekli!','err');return}
+  try{
+    const res=await fetch(`${cfg.sbUrl}/rest/v1/questions?select=id&limit=1`,{headers:{'apikey':cfg.sbKey,'Authorization':'Bearer '+cfg.sbKey}});
+    if(res.ok){
+      document.getElementById('sbStatus').innerHTML='<span class="sdot" style="background:var(--gr)"></span> ✅ Bağlantı başarılı!';
+      document.getElementById('sbStatus').style.background='var(--gs)';
+      document.getElementById('sbStatus').style.color='var(--gr)';
+      toast('✅ Supabase bağlantısı başarılı!','ok');
+    }else{
+      document.getElementById('sbStatus').innerHTML='❌ Hata: '+res.status;
+      document.getElementById('sbStatus').style.background='var(--cs)';
+      document.getElementById('sbStatus').style.color='var(--co)';
+    }
+  }catch(e){toast('❌ '+e.message,'err')}
+}
+
+function saveSB(){
+  cfg.sbUrl=document.getElementById('sbUrl').value.trim();
+  cfg.sbKey=document.getElementById('sbKey').value.trim();
+  localStorage.setItem('nu_cfg',JSON.stringify(cfg));
+  toast('💾 Supabase ayarları kaydedildi!','ok');
+}
+
+/* ── GOOGLE SHEETS ── */
+async function pushToSheets(arr){
+  if(!cfg.shUrl)return;
+  try{
+    await fetch(cfg.shUrl,{
+      method:'POST',
+      mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(arr)
+    });
+    toast('📊 Google Sheets\'e yedeklendi!','ok');
+  }catch(e){
+    toast('⚠️ Sheets hatası: '+e.message,'err');
+  }
+}
+
+async function backupNow(){
+  if(!cfg.shUrl){toast('Apps Script URL gerekli!','err');return}
+  toast(`${qs.length} soru yedekleniyor...`,'info');
+  await pushToSheets(qs);
+}
+
+async function testSH(){
+  if(!cfg.shUrl){toast('Apps Script URL gerekli!','err');return}
+  await pushToSheets([{id:'test',question_text:'Bağlantı testi',created_at:new Date().toISOString()}]);
+  document.getElementById('shStatus').innerHTML='✅ Sheets bağlantısı tamam! (no-cors modunda test)';
+  document.getElementById('shStatus').style.background='var(--gs)';
+}
+
+function saveSH(){
+  cfg.shUrl=document.getElementById('shUrl').value.trim();
+  cfg.shId=document.getElementById('shId').value.trim();
+  localStorage.setItem('nu_cfg',JSON.stringify(cfg));
+  toast('💾 Sheets ayarları kaydedildi!','ok');
+}
+
+/* ── CONFIG LOAD ── */
+function loadConfig(){
+  if(cfg.sbUrl)document.getElementById('sbUrl').value=cfg.sbUrl;
+  if(cfg.sbKey)document.getElementById('sbKey').value=cfg.sbKey;
+  if(cfg.shUrl)document.getElementById('shUrl').value=cfg.shUrl;
+  if(cfg.shId)document.getElementById('shId').value=cfg.shId;
+  if(document.getElementById('setUser'))document.getElementById('setUser').value=creds.user;
+}
+
+/* ── DASHBOARD ── */
+function updateDash(){
+  const total=qs.length;
+  const synced=qs.filter(q=>q.synced).length;
+  const pend=qs.filter(q=>q.status==='pending_review').length;
+  const flag=qs.filter(q=>q.status==='flagged').length;
+  document.getElementById('dTotal').textContent=total;
+  document.getElementById('dSync').textContent=synced;
+  document.getElementById('dPend').textContent=pend;
+  document.getElementById('dFlag').textContent=flag;
+  document.getElementById('dSyncCount').textContent=synced;
+  document.getElementById('dLocalCount').textContent=total-synced;
+  document.getElementById('dSheetsCount').textContent=cfg.shUrl?'✓':'—';
+  document.getElementById('pendBadge').textContent=pend;
+  document.getElementById('footSync').textContent=`${total-synced} yerel · ${synced} senkronize`;
+
+  const unsync=total-synced;
+  const sb=document.getElementById('syncBar');
+  if(unsync>0&&cfg.sbUrl){
+    sb.style.display='flex';
+    document.getElementById('syncBarTxt').textContent=`${unsync} soru Supabase'e yüklenmedi`;
+  }else{sb.style.display='none'}
+
+  const counts={};
+  qs.forEach(q=>{counts[q.subject]=(counts[q.subject]||0)+1});
+  const max=Math.max(...Object.values(counts),1);
+  document.getElementById('dChart').innerHTML=Object.entries(SUBS).map(([k,s])=>{
+    const c=counts[k]||0;
+    return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:9px">
+      <div style="width:82px;font-size:11px;font-weight:600;color:var(--is);white-space:nowrap">${s.e} ${s.n}</div>
+      <div style="flex:1"><div class="pw"><div class="pf" style="width:${Math.round(c/max*100)}%"></div></div></div>
+      <div style="width:22px;text-align:right;font-size:12px;font-weight:700">${c}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('dRecent').innerHTML=qs.slice(0,5).map(q=>`
+    <div style="padding:10px 22px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px">
+      <div style="flex:1;overflow:hidden">
+        <div style="font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${q.question_text}</div>
+        <div style="font-size:10px;color:var(--mu);margin-top:2px">${SUBS[q.subject]?.e} ${SUBS[q.subject]?.n} · ${DIFF[q.difficulty]}</div>
+      </div>
+      <span class="badge ${q.status==='approved'?'bg':'ba'}">${STAT[q.status]||q.status}</span>
+      <span class="badge ${q.synced?'bp':'bm'}">${q.synced?'☁':'💾'}</span>
+    </div>`).join('')||'<div style="padding:24px 22px;font-size:12px;color:var(--mu)">Henüz soru eklenmedi</div>';
+}
+
+/* ── TABLE ── */
+function renderTable(){
+  let f=[...qs];
+  if(fSrch)f=f.filter(q=>q.question_text.toLowerCase().includes(fSrch.toLowerCase()));
+  if(fSub)f=f.filter(q=>q.subject===fSub);
+  if(fSt)f=f.filter(q=>q.status===fSt);
+  if(fSy==='synced')f=f.filter(q=>q.synced);
+  if(fSy==='local')f=f.filter(q=>!q.synced);
+  document.getElementById('tCount').textContent=f.length+' soru';
+  document.getElementById('tbody').innerHTML=f.map((q,i)=>`<tr>
+    <td style="font-size:11px;color:var(--mu);font-weight:600">${i+1}</td>
+    <td><div class="qtx">${q.question_text.slice(0,55)}${q.question_text.length>55?'...':''}</div><div class="qts">${new Date(q.created_at).toLocaleDateString('tr-TR')}</div></td>
+    <td><span class="badge bp">${SUBS[q.subject]?.e} ${SUBS[q.subject]?.n}</span></td>
+    <td><span class="badge ${q.difficulty==='easy'?'bg':q.difficulty==='medium'?'ba':'bc'}">${DIFF[q.difficulty]}</span></td>
+    <td><span class="badge ${q.status==='approved'?'bg':'ba'}">${STAT[q.status]||q.status}</span></td>
+    <td><span class="badge ${q.synced?'bp':'bm'}">${q.synced?'☁ Sync':'💾 Yerel'}</span></td>
+    <td><span style="font-size:13px;font-weight:800;color:var(--p)">${q.correct_option?.toUpperCase()}</span></td>
+    <td style="white-space:nowrap;font-size:11px">${new Date(q.created_at).toLocaleDateString('tr-TR')}</td>
+    <td><div style="display:flex;gap:4px">
+      <button class="ab apr" onclick="aprQ('${q.id}')" title="Onayla">✓</button>
+      <button class="ab" onclick="editQ('${q.id}')" title="Düzenle">✏️</button>
+      ${!q.synced?`<button class="ab" onclick="syncOne('${q.id}')" title="Supabase'e yükle" style="color:var(--p)">☁</button>`:''}
+      <button class="ab del" onclick="delQ('${q.id}')" title="Sil">🗑</button>
+    </div></td>
+  </tr>`).join('')||'<tr><td colspan="9" style="text-align:center;padding:32px;color:var(--mu)">Soru bulunamadı</td></tr>';
+}
+
+function fSearch(v){fSrch=v;renderTable()}
+function fSubj(v){fSub=v;renderTable()}
+function fStat(v){fSt=v;renderTable()}
+function fSync(v){fSy=v;renderTable()}
+
+function aprQ(id){
+  const q=qs.find(x=>x.id===id);if(!q)return;
+  q.status='approved';save();renderTable();toast('✅ Onaylandı!','ok');
+}
+
+async function syncOne(id){
+  const q=qs.find(x=>x.id===id);if(!q)return;
+  await pushToSB([q]);
+  renderTable();
+}
+
+function delQ(id){
+  if(!confirm('Bu soruyu silmek istediğine emin misin?'))return;
+  qs=qs.filter(q=>q.id!==id);save();renderTable();updateDash();
+  toast('🗑 Silindi','err');
+}
+
+function editQ(id){
+  const q=qs.find(x=>x.id===id);if(!q)return;
+  showSec('add',null);
+  document.getElementById('qText').value=q.question_text;
+  ['a','b','c','d','e'].forEach(k=>{const el=document.getElementById('o'+k.toUpperCase());if(el)el.value=q['option_'+k]||''});
+  document.getElementById('qExp').value=q.canonical_explanation||'';
+  document.getElementById('qSubj').value=q.subject;
+  document.getElementById('qExam').value=q.exam_type||'kpss_lisans';
+  document.getElementById('qStat').value=q.status;
+  if(q.correct_option){
+    const r=document.querySelector(`input[name="ans"][value="${q.correct_option}"]`);
+    if(r){r.checked=true;setAns(q.correct_option.toUpperCase())}
+  }
+  const chip=document.querySelector(`.chip.${q.difficulty}`);
+  if(chip)setDiff(q.difficulty,chip);
+  qs=qs.filter(x=>x.id!==id);save();
+  updPrev();
+  toast('✏️ Düzenleme modunda','info');
+}
+
+/* ── IMPORT ── */
+function impJSON(){
+  try{
+    let data=JSON.parse(document.getElementById('jsonIn').value);
+    if(!Array.isArray(data))data=[data];
+    data.forEach(q=>qs.unshift({id:uid(),...q,created_at:new Date().toISOString(),synced:false,status:q.status||'pending_review'}));
+    save();toast(`✅ ${data.length} soru içe aktarıldı!`,'ok');
+    switchTab('form');updateDash();
+  }catch(e){toast('❌ JSON hatalı: '+e.message,'err')}
+}
+
+function handleDrop(e){
+  e.preventDefault();
+  document.getElementById('dropZone').style.borderColor='';
+  const file=e.dataTransfer.files[0];
+  if(file)processFile(file);
+}
+
+function handleFile(input){
+  const file=input.files[0];
+  if(file)processFile(file);
+}
+
+function processFile(file){
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const content=e.target.result;
+    if(file.name.endsWith('.json')){
+      document.getElementById('jsonIn').value=content;
+      switchTab('json');
+    }else if(file.name.endsWith('.csv')){
+      const rows=content.split('\n').map(r=>r.split(',').map(c=>c.trim().replace(/^"|"$/g,'')));
+      const headers=rows[0];
+      const data=rows.slice(1).filter(r=>r.length>3).map(r=>{const o={};headers.forEach((h,i)=>o[h]=r[i]||'');return o});
+      window._bulkData=data;
+      document.getElementById('bulkPrev').style.display='';
+      document.getElementById('bulkPrevContent').innerHTML=`<div style="font-size:12px;color:var(--mu);margin-bottom:8px">${data.length} soru bulundu</div>`+data.slice(0,3).map(d=>`<div style="padding:8px;background:var(--bg);border-radius:8px;font-size:11px;margin-bottom:6px;color:var(--is)">${d.question_text||'—'}</div>`).join('')+(data.length>3?`<div style="font-size:11px;color:var(--mu)">+${data.length-3} soru daha...</div>`:'');
+    }
+  };
+  reader.readAsText(file);
+}
+
+async function impBulk(){
+  const data=window._bulkData;
+  if(!data?.length)return;
+  data.forEach(q=>qs.unshift({id:uid(),...q,created_at:new Date().toISOString(),synced:false,status:q.status||'pending_review'}));
+  save();
+  if(cfg.sbUrl&&cfg.sbKey){
+    await pushToSB(qs.filter(q=>!q.synced));
+  }
+  toast(`✅ ${data.length} soru aktarıldı!`,'ok');
+  document.getElementById('bulkPrev').style.display='none';
+  updateDash();
+}
+
+/* ── EXPORT ── */
+function expJSON(){
+  const blob=new Blob([JSON.stringify(qs,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`netup-${Date.now()}.json`;a.click();
+  toast('📥 JSON indirildi!','ok');
+}
+
+function expCSV(){
+  const h=['id','question_text','option_a','option_b','option_c','option_d','option_e','correct_option','subject','difficulty','status','canonical_explanation','created_at'];
+  const rows=[h.join(','),...qs.map(q=>h.map(k=>`"${(q[k]||'').toString().replace(/"/g,'""')}"`).join(','))];
+  const blob=new Blob([rows.join('\n')],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`netup-${Date.now()}.csv`;a.click();
+  toast('📥 CSV indirildi!','ok');
+}
+
+function clearLocal(){
+  if(!confirm('Tüm yerel veriyi silmek istediğine emin misin? Bu geri alınamaz!'))return;
+  qs=[];save();updateDash();
+  toast('🗑 Yerel veri temizlendi','err');
+}
+
+/* ── UTILS ── */
+function save(){
+  localStorage.setItem('nu_qs',JSON.stringify(qs));
+  const p=qs.filter(q=>q.status==='pending_review').length;
+  document.getElementById('pendBadge').textContent=p;
+  document.getElementById('footSync').textContent=`${qs.filter(q=>!q.synced).length} yerel · ${qs.filter(q=>q.synced).length} senkronize`;
+}
+
+function toast(msg,type=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className='toast'+(type?' '+type:'')+' show';
+  clearTimeout(t._t);
+  t._t=setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+document.getElementById('loginUser').focus();
+</script>
+</body>
+</html>
