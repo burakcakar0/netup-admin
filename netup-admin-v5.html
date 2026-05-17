@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NetUP Admin 🦉</title>
+<style>
+:root{
+  --p:#134E4A;--pd:#0A3331;--ps:#E1ECEB;
+  --a:#E8B83C;--ad:#BC8B1E;--as:#FAEFD0;
+  --bg:#F6F1E6;--sur:#FFFFFF;
+  --ink:#1B2628;--is:#3D4647;--mu:#8B8479;
+  --co:#D9624A;--cs:#FBE7E0;
+  --gr:#5E8F4D;--gs:#E5EFDB;
+  --bd:rgba(27,38,40,0.1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-size:14px}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.93)}to{opacity:1;transform:scale(1)}}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.6}50%{transform:scale(1.08);opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes toastIn{from{opacity:0;transform:translateX(60px)}to{opacity:1;transform:translateX(0)}}
+@keyframes toastOut{to{opacity:0;transform:translateX(60px)}}
+@keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(19,78,74,.3)}50%{box-shadow:0 0 0 8px rgba(19,78,74,0)}}
+
+/* ── LOGIN ── */
+#loginWrap{position:fixed;inset:0;background:linear-gradient(135deg,#071f1e 0%,#0A3331 50%,#134E4A 100%);display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column}
+.lp-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.lp-orb{position:absolute;border-radius:50%;filter:blur(60px);opacity:.2}
+.login-card{background:#fff;border-radius:28px;padding:44px;width:390px;box-shadow:0 32px 80px rgba(0,0,0,.35);animation:scaleIn .4s ease;position:relative;z-index:1}
+.lc-owl{font-size:56px;display:block;text-align:center;margin-bottom:10px;animation:bounce 2.5s ease-in-out infinite}
+.lc-title{font-size:30px;font-weight:800;background:linear-gradient(135deg,var(--pd),var(--p));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-align:center;letter-spacing:-.5px;margin-bottom:4px}
+.lc-sub{font-size:13px;color:var(--mu);text-align:center;margin-bottom:30px}
+.lfl{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--is);margin-bottom:6px;margin-top:14px}
+.lfi{width:100%;padding:12px 16px;border:2px solid var(--bd);border-radius:12px;font-size:14px;color:var(--ink);outline:none;font-family:inherit;transition:all .2s;background:var(--bg)}
+.lfi:focus{border-color:var(--p);background:#fff;box-shadow:0 0 0 4px var(--ps)}
+.lfb{width:100%;padding:14px;background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;margin-top:20px}
+.lfb:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(19,78,74,.4)}
+.lfe{background:var(--cs);color:var(--co);border:1px solid rgba(217,98,74,.3);border-radius:12px;padding:11px 14px;font-size:12px;font-weight:600;margin-top:12px;display:none;animation:fadeIn .3s}
+.lfh{text-align:center;font-size:11px;color:#bbb;margin-top:14px}
+
+/* ── APP LAYOUT ── */
+.sidebar{width:252px;background:linear-gradient(180deg,var(--pd) 0%,#0d3d39 100%);height:100vh;position:fixed;left:0;top:0;display:none;flex-direction:column;z-index:100;box-shadow:4px 0 20px rgba(0,0,0,.2)}
+.sl-logo{padding:22px 20px 18px;border-bottom:1px solid rgba(255,255,255,.08);cursor:default}
+.sl-owl{font-size:28px;animation:bounce 3s ease-in-out infinite;display:block;margin-bottom:6px}
+.sl-name{font-size:21px;font-weight:800;color:#fff;letter-spacing:-.5px}
+.sl-ver{font-size:10px;color:rgba(255,255,255,.3);margin-top:2px}
+.sl-nav{padding:10px 0;flex:1;overflow-y:auto}
+.sl-sec{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.25);padding:14px 20px 5px}
+.ni{display:flex;align-items:center;gap:10px;padding:10px 20px;color:rgba(255,255,255,.5);cursor:pointer;font-size:13px;font-weight:600;border:none;background:none;width:100%;text-align:left;transition:all .2s;position:relative}
+.ni:hover{color:rgba(255,255,255,.9);background:rgba(255,255,255,.07)}
+.ni.active{color:#fff;background:rgba(255,255,255,.12)}
+.ni.active::before{content:'';position:absolute;left:0;top:6px;bottom:6px;width:3px;background:var(--a);border-radius:0 3px 3px 0}
+.ni-icon{font-size:16px;width:22px;text-align:center}
+.ni-badge{margin-left:auto;background:var(--a);color:var(--ink);font-size:10px;font-weight:800;padding:2px 8px;border-radius:10px}
+.ni-badge.red{background:var(--co);color:#fff}
+.sl-foot{padding:14px 20px;border-top:1px solid rgba(255,255,255,.08)}
+.sl-user{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.sl-uname{font-size:12px;font-weight:600;color:rgba(255,255,255,.7);display:flex;align-items:center;gap:7px}
+.sl-av{width:26px;height:26px;border-radius:50%;background:rgba(232,184,60,.25);border:1.5px solid rgba(232,184,60,.4);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--a)}
+.sl-out{font-size:10px;padding:3px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:none;color:rgba(255,255,255,.35);cursor:pointer;font-family:inherit;transition:all .2s}
+.sl-out:hover{border-color:rgba(217,98,74,.5);color:#fca5a5}
+.sl-status{font-size:11px;color:rgba(255,255,255,.3);display:flex;align-items:center;gap:6px}
+.sl-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.sl-dot.ok{background:var(--gr);box-shadow:0 0 6px rgba(94,143,77,.6)}
+.sl-dot.err{background:var(--co)}
+.sl-dot.idle{background:var(--mu)}
+
+.main{margin-left:252px;display:none;flex-direction:column;min-height:100vh}
+.topbar{background:var(--sur);border-bottom:1px solid var(--bd);padding:0 28px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:0 1px 0 var(--bd),0 4px 12px rgba(27,38,40,.04)}
+.tb-l .tb-t{font-size:16px;font-weight:700;color:var(--ink)}
+.tb-l .tb-s{font-size:12px;color:var(--mu);margin-top:2px}
+.tb-r{display:flex;align-items:center;gap:10px}
+.conn-badge{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:20px;font-size:11px;font-weight:700}
+.conn-badge.ok{background:var(--gs);color:#2d6b2a}
+.conn-badge.err{background:var(--cs);color:#9b3520}
+.conn-badge.idle{background:#EEE9E0;color:var(--mu)}
+.tbtn{padding:8px 16px;border-radius:12px;border:1.5px solid var(--p);background:transparent;color:var(--p);font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s;font-family:inherit}
+.tbtn:hover{background:var(--p);color:#fff}
+.tbtn.pr{background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(19,78,74,.3)}
+.tbtn.pr:hover{box-shadow:0 6px 20px rgba(19,78,74,.4)}
+
+.sync-bar{display:none;align-items:center;gap:10px;padding:10px 28px;background:linear-gradient(90deg,var(--as),#fffdf5);border-bottom:1px solid rgba(232,184,60,.2)}
+.sync-bar .sdot{width:8px;height:8px;border-radius:50%;background:var(--a);animation:pulse 1.5s ease-in-out infinite;flex-shrink:0}
+.sync-bar .stxt{font-size:12px;font-weight:600;color:#7A5E10;flex:1}
+.sync-bar .sbtn{padding:5px 13px;border-radius:8px;background:linear-gradient(135deg,var(--a),var(--ad));color:var(--ink);border:none;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit}
+
+.content{padding:26px;flex:1}
+.sec{display:none;animation:fadeIn .25s ease}
+.sec.active{display:block}
+
+/* ── STAT CARDS ── */
+.sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.scard{background:var(--sur);border-radius:20px;border:1px solid var(--bd);padding:20px;position:relative;overflow:hidden;transition:all .2s;cursor:default}
+.scard:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(27,38,40,.1)}
+.scard::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:20px 20px 0 0}
+.scard.blue::after{background:linear-gradient(90deg,var(--p),#1d7a74)}
+.scard.green::after{background:linear-gradient(90deg,var(--gr),#7ab869)}
+.scard.amber::after{background:linear-gradient(90deg,var(--a),var(--ad))}
+.scard.coral::after{background:linear-gradient(90deg,var(--co),#e8835a)}
+.sc-icon{font-size:26px;margin-bottom:10px;display:block}
+.sc-label{font-size:11px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
+.sc-val{font-size:32px;font-weight:800;color:var(--ink);line-height:1;margin-bottom:5px}
+.sc-sub{font-size:11px;font-weight:600}
+.sc-sub.green{color:var(--gr)}.sc-sub.amber{color:#7A5E10}.sc-sub.coral{color:var(--co)}
+
+/* ── CARD ── */
+.card{background:var(--sur);border-radius:20px;border:1px solid var(--bd);overflow:hidden;box-shadow:0 1px 3px rgba(27,38,40,.04),0 6px 18px rgba(27,38,40,.06)}
+.ch{padding:18px 24px 14px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.ct{font-size:14px;font-weight:700;color:var(--ink)}
+.csub{font-size:11px;color:var(--mu);margin-top:2px}
+.cb{padding:22px 24px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
+.g31{display:grid;grid-template-columns:2fr 1fr;gap:20px}
+
+/* ── FORM ── */
+.fg{margin-bottom:15px}
+.fl{display:block;font-size:11px;font-weight:700;color:var(--is);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em}
+.fi,.fs,.ft{width:100%;padding:10px 14px;border:2px solid var(--bd);border-radius:12px;font-size:13px;color:var(--ink);background:var(--bg);font-family:inherit;transition:all .2s;outline:none}
+.fi:focus,.fs:focus,.ft:focus{border-color:var(--p);background:#fff;box-shadow:0 0 0 4px var(--ps)}
+.ft{resize:vertical;min-height:88px;line-height:1.6}
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* OPTION ROWS */
+.or{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.ok{width:30px;height:30px;border-radius:9px;background:var(--ps);color:var(--p);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .25s}
+.ok.cor{background:linear-gradient(135deg,var(--gr),#7ab869);color:#fff;box-shadow:0 3px 8px rgba(94,143,77,.35)}
+.oi{flex:1;padding:8px 12px;border:2px solid var(--bd);border-radius:10px;font-size:13px;color:var(--ink);font-family:inherit;outline:none;transition:all .2s;background:var(--bg)}
+.oi:focus{border-color:var(--p);background:#fff}
+.ora{width:18px;height:18px;accent-color:var(--gr);cursor:pointer;flex-shrink:0}
+
+/* CHIPS */
+.cg{display:flex;gap:8px;flex-wrap:wrap}
+.chip{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:2px solid var(--bd);background:var(--sur);color:var(--is);transition:all .2s;font-family:inherit}
+.chip:hover{border-color:var(--p);color:var(--p);transform:translateY(-1px)}
+.chip.sel{background:var(--p);color:#fff;border-color:var(--p);box-shadow:0 4px 12px rgba(19,78,74,.3)}
+.chip.easy.sel{background:linear-gradient(135deg,var(--gr),#7ab869);border-color:var(--gr)}
+.chip.medium.sel{background:linear-gradient(135deg,var(--a),var(--ad));color:var(--ink);border-color:var(--a)}
+.chip.hard.sel{background:linear-gradient(135deg,var(--co),#e8835a);border-color:var(--co)}
+
+/* BTNS */
+.bpr{width:100%;padding:13px;border-radius:14px;background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;border:none;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;font-family:inherit;margin-top:8px;box-shadow:0 4px 14px rgba(19,78,74,.3)}
+.bpr:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(19,78,74,.4)}
+.bpr:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.bsc{width:100%;padding:11px;border-radius:12px;background:var(--sur);color:var(--is);border:2px solid var(--bd);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit;margin-top:8px}
+.bsc:hover{border-color:var(--p);color:var(--p)}
+.bsc.danger{color:var(--co);border-color:rgba(217,98,74,.3)}.bsc.danger:hover{border-color:var(--co);background:var(--cs)}
+
+/* TABLE */
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--mu);padding:11px 14px;text-align:left;border-bottom:1px solid var(--bd);white-space:nowrap;background:#faf9f5}
+td{padding:11px 14px;border-bottom:1px solid var(--bd);font-size:12px;color:var(--is);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#faf8f4}
+.tdm{font-size:13px;font-weight:600;color:var(--ink);max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tds{font-size:10px;color:var(--mu);margin-top:2px}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap}
+.bg{background:var(--gs);color:#2d6b2a}.ba{background:var(--as);color:#7A5E10}
+.bc{background:var(--cs);color:#9b3520}.bp{background:var(--ps);color:var(--pd)}
+.bm{background:#EEE9E0;color:var(--mu)}
+
+/* ACTION BTNS */
+.ab{padding:5px 9px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid var(--bd);background:var(--sur);color:var(--is);transition:all .15s;font-family:inherit}
+.ab:hover{transform:translateY(-1px)}
+.ab.approve:hover{background:var(--gr);border-color:var(--gr);color:#fff}
+.ab.sync-btn-ab:hover{background:var(--p);border-color:var(--p);color:#fff}
+.ab.del:hover{background:var(--co);border-color:var(--co);color:#fff}
+.ab.edit:hover{background:var(--a);border-color:var(--a);color:var(--ink)}
+
+/* FILTER */
+.fb{display:flex;gap:10px;padding:13px 22px;border-bottom:1px solid var(--bd);align-items:center;background:#faf9f5;flex-wrap:wrap}
+.sw{position:relative;flex:1;min-width:180px}
+.si{width:100%;padding:9px 13px 9px 34px;border:2px solid var(--bd);border-radius:11px;font-size:13px;color:var(--ink);background:var(--sur);font-family:inherit;outline:none;transition:all .2s}
+.si:focus{border-color:var(--p)}
+.si-ico{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--mu);font-size:13px;pointer-events:none}
+.fsel{padding:9px 12px;border:2px solid var(--bd);border-radius:11px;font-size:12px;font-weight:600;color:var(--is);background:var(--sur);font-family:inherit;cursor:pointer;outline:none}
+.fsel:focus{border-color:var(--p)}
+
+/* PREVIEW */
+.prev-phone{background:linear-gradient(160deg,var(--pd),var(--p));border-radius:22px;padding:18px;color:#fff;margin-bottom:16px;position:relative;overflow:hidden}
+.prev-phone::before{content:'';position:absolute;top:-20px;right:-20px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,.05)}
+.prev-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.4);margin-bottom:7px}
+.prev-q{font-size:13px;line-height:1.6;color:rgba(255,255,255,.9);margin-bottom:11px;min-height:40px}
+.prev-opts{display:flex;flex-direction:column;gap:6px}
+.prev-opt{font-size:12px;padding:7px 11px;border-radius:10px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.65);display:flex;align-items:center;gap:6px}
+.prev-opt.cor{background:rgba(94,143,77,.3);color:#7FD465;border-left:3px solid #7FD465}
+.prev-key{font-size:10px;font-weight:800;width:14px;opacity:.55;flex-shrink:0}
+
+/* INFO BOX */
+.infobox{display:flex;align-items:flex-start;gap:9px;padding:11px 14px;background:var(--as);border-radius:12px;border:1px solid rgba(232,184,60,.3);font-size:12px;color:#7A5E10;font-weight:600;line-height:1.5;margin-bottom:14px}
+.warnbox{background:var(--cs);border-color:rgba(217,98,74,.3);color:#9b3520}
+.infobox-p{background:var(--ps);border-color:rgba(19,78,74,.2);color:var(--pd)}
+
+/* PROGRESS */
+.pw{background:var(--bg);border-radius:10px;height:6px;overflow:hidden}
+.pf{height:100%;border-radius:10px;background:linear-gradient(90deg,var(--p),#1d7a74);transition:width .8s}
+
+/* TOAST */
+#toastWrap{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{display:flex;align-items:center;gap:10px;padding:13px 16px;border-radius:16px;font-size:13px;font-weight:600;box-shadow:0 8px 28px rgba(0,0,0,.2);pointer-events:all;min-width:260px;max-width:360px;animation:toastIn .3s cubic-bezier(.34,1.56,.64,1)}
+.toast.rm{animation:toastOut .3s ease forwards}
+.toast-ico{font-size:18px;flex-shrink:0}
+.toast-txt{flex:1;line-height:1.4}
+.toast-x{background:none;border:none;cursor:pointer;font-size:16px;opacity:.6;color:inherit;font-family:inherit;transition:opacity .2s}
+.toast-x:hover{opacity:1}
+.toast.success{background:linear-gradient(135deg,#2d7a2a,#3a9936);color:#fff}
+.toast.error{background:linear-gradient(135deg,#c0392b,#d9624a);color:#fff}
+.toast.info{background:linear-gradient(135deg,var(--pd),var(--p));color:#fff}
+.toast.warning{background:linear-gradient(135deg,#c47d00,var(--a));color:#1a0800}
+
+/* MISC */
+.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+.empty{text-align:center;padding:44px 20px;color:var(--mu)}
+.empty-ico{font-size:44px;margin-bottom:12px;display:block;opacity:.5}
+.empty-t{font-size:15px;font-weight:700;color:var(--is);margin-bottom:5px}
+.tab-bar{display:flex;gap:4px;padding:13px 24px 0;border-bottom:1px solid var(--bd);background:#faf9f5}
+.tabbtn{padding:9px 16px 11px;font-size:13px;font-weight:600;color:var(--mu);border:none;background:none;cursor:pointer;border-bottom:2.5px solid transparent;margin-bottom:-1px;font-family:inherit;transition:all .2s}
+.tabbtn.active{color:var(--p);border-bottom-color:var(--p)}
+.conn-box{padding:12px 16px;border-radius:12px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px;margin-top:12px;transition:all .3s}
+.conn-ok{background:var(--gs);color:#2d6b2a}.conn-err{background:var(--cs);color:#9b3520}.conn-idle{background:var(--bg);color:var(--mu);border:1px solid var(--bd)}
+.drop-z{border:2.5px dashed var(--bd);border-radius:18px;padding:38px;text-align:center;cursor:pointer;transition:all .25s;margin-bottom:14px}
+.drop-z:hover,.drop-z.drag{border-color:var(--p);background:var(--ps)}
+.code-box{background:#1a1a2e;border-radius:14px;padding:16px;font-family:monospace;font-size:11px;line-height:1.7;color:#cdd6f4;overflow-x:auto;position:relative;margin:10px 0}
+.code-copy{position:absolute;top:8px;right:8px;padding:4px 10px;border-radius:7px;background:rgba(255,255,255,.1);color:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.15);font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s}
+.code-copy:hover{background:rgba(255,255,255,.2);color:#fff}
+.mini-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.mini-card{background:var(--sur);border-radius:16px;border:1px solid var(--bd);padding:16px;text-align:center;transition:all .2s}
+.mini-card:hover{transform:translateY(-2px)}
+.mini-v{font-size:28px;font-weight:800;margin-bottom:3px}
+.mini-l{font-size:11px;font-weight:600;color:var(--mu)}
+.sum-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px}
+.sum-lbl{color:var(--mu)}.sum-val{font-weight:700}
+.chart-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.chart-lbl{width:84px;font-size:11px;font-weight:600;color:var(--is);flex-shrink:0}
+.chart-bw{flex:1;height:7px;background:var(--bg);border-radius:10px;overflow:hidden}
+.chart-bf{height:100%;background:linear-gradient(90deg,var(--p),#1d7a74);border-radius:10px;transition:width 1s ease}
+.chart-cnt{width:22px;text-align:right;font-size:12px;font-weight:700}
+.ri{display:flex;align-items:center;gap:12px;padding:12px 24px;border-bottom:1px solid var(--bd);transition:background .15s}
+.ri:hover{background:#faf8f4}.ri:last-child{border-bottom:none}
+.ri-q{font-size:12px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:220px}
+.ri-m{font-size:10px;color:var(--mu);margin-top:2px}
+.step-list{display:flex;flex-direction:column;gap:12px}
+.step-i{display:flex;align-items:flex-start;gap:12px;font-size:13px;color:var(--is);line-height:1.5}
+.step-n{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0;margin-top:1px}
+.step-n.done{background:var(--gr)}.step-n.act{background:var(--p);animation:glow 2s infinite}.step-n.idle{background:var(--mu)}
+
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-thumb{background:rgba(27,38,40,.12);border-radius:5px}
+@media(max-width:900px){.sidebar{transform:translateX(-252px)}.main{margin-left:0}.sgrid{grid-template-columns:1fr 1fr}.g2,.g31{grid-template-columns:1fr}.mini-grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginWrap">
+  <div class="lp-bg">
+    <div class="lp-orb" style="width:400px;height:400px;background:#E8B83C;top:-150px;left:-150px;animation:pulse 5s ease-in-out infinite"></div>
+    <div class="lp-orb" style="width:300px;height:300px;background:#134E4A;bottom:-100px;right:-100px;animation:pulse 6s ease-in-out infinite .8s"></div>
+    <div class="lp-orb" style="width:200px;height:200px;background:#D9624A;top:40%;right:15%;animation:pulse 4s ease-in-out infinite 1.5s"></div>
+  </div>
+  <div class="login-card">
+    <span class="lc-owl">🦉</span>
+    <div class="lc-title">NetUP Admin</div>
+    <div class="lc-sub">Soru Yönetim Paneli v5.0</div>
+    <label class="lfl">Kullanıcı Adı</label>
+    <input class="lfi" id="lu" placeholder="admin" onkeydown="if(event.key==='Enter')login()">
+    <label class="lfl">Şifre</label>
+    <input class="lfi" id="lp" placeholder="••••••••" type="password" onkeydown="if(event.key==='Enter')login()">
+    <button class="lfb" onclick="login()" id="lbtn">Giriş Yap →</button>
+    <div class="lfe" id="lerr">❌ Hatalı kullanıcı adı veya şifre</div>
+    <div class="lfh">Varsayılan: admin / netup2024</div>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sl-logo">
+    <span class="sl-owl">🦉</span>
+    <div class="sl-name">NetUP Admin</div>
+    <div class="sl-ver">Soru Yönetim Paneli v5.0</div>
+  </div>
+  <nav class="sl-nav">
+    <div class="sl-sec">Ana Menü</div>
+    <button class="ni active" onclick="goTo('dashboard',this)"><span class="ni-icon">📊</span>Dashboard</button>
+    <button class="ni" onclick="goTo('add',this)"><span class="ni-icon">➕</span>Soru Ekle</button>
+    <button class="ni" onclick="goTo('list',this)"><span class="ni-icon">📚</span>Soru Listesi<span class="ni-badge" id="navBadge">0</span></button>
+    <div class="sl-sec">Entegrasyonlar</div>
+    <button class="ni" onclick="goTo('supabase',this)"><span class="ni-icon">🔗</span>Supabase</button>
+    <button class="ni" onclick="goTo('sheets',this)"><span class="ni-icon">📊</span>Google Sheets</button>
+    <button class="ni" onclick="goTo('bulk',this)"><span class="ni-icon">📤</span>Toplu Aktar</button>
+    <div class="sl-sec">Hesap</div>
+    <button class="ni" onclick="goTo('settings',this)"><span class="ni-icon">⚙️</span>Ayarlar</button>
+  </nav>
+  <div class="sl-foot">
+    <div class="sl-user">
+      <div class="sl-uname"><div class="sl-av" id="slAv">A</div><span id="slUser">admin</span></div>
+      <button class="sl-out" onclick="logout()">Çıkış</button>
+    </div>
+    <div class="sl-status"><span class="sl-dot" id="slDot"></span><span id="slStatus">Bağlantı yok</span></div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main" id="mainApp">
+  <div class="topbar">
+    <div class="tb-l"><div class="tb-t" id="tbTitle">Dashboard</div><div class="tb-s" id="tbSub">Genel bakış</div></div>
+    <div class="tb-r">
+      <div class="conn-badge idle" id="connBadge">⚪ Bağlantı yok</div>
+      <button class="tbtn" onclick="goTo('add',null)">➕ Soru Ekle</button>
+      <button class="tbtn pr" onclick="syncAll()">☁ Senkronize Et</button>
+    </div>
+  </div>
+  <div class="sync-bar" id="syncBar">
+    <span class="sdot"></span>
+    <span class="stxt" id="syncTxt"></span>
+    <button class="sbtn" onclick="syncAll()">Şimdi Yükle →</button>
+  </div>
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="sec active" id="sec-dashboard">
+      <div class="sgrid">
+        <div class="scard blue"><span class="sc-icon">📚</span><div class="sc-label">Toplam Soru</div><div class="sc-val" id="dTotal">0</div><div class="sc-sub green">Yerel kayıt</div></div>
+        <div class="scard green"><span class="sc-icon">☁</span><div class="sc-label">Supabase'de</div><div class="sc-val" id="dSync">0</div><div class="sc-sub green">Senkronize</div></div>
+        <div class="scard amber"><span class="sc-icon">⏳</span><div class="sc-label">Bekleyen</div><div class="sc-val" id="dPend">0</div><div class="sc-sub amber">Onay bekliyor</div></div>
+        <div class="scard coral"><span class="sc-icon">⚠️</span><div class="sc-label">Hata / Raporlanan</div><div class="sc-val" id="dFlag">0</div><div class="sc-sub coral">Dikkat</div></div>
+      </div>
+      <div class="g2">
+        <div class="card">
+          <div class="ch"><div><div class="ct">Ders Dağılımı</div><div class="csub">Konuya göre soru sayısı</div></div></div>
+          <div class="cb" style="padding:16px 24px" id="dChart"><div class="empty"><span class="empty-ico">📊</span><div class="empty-t">Henüz soru yok</div></div></div>
+        </div>
+        <div class="card">
+          <div class="ch"><div><div class="ct">Son Eklenenler</div><div class="csub">Son 5 soru</div></div><button class="tbtn" style="font-size:11px;padding:6px 12px" onclick="goTo('list',null)">Tümü →</button></div>
+          <div id="dRecent"><div class="empty"><span class="empty-ico">📝</span><div class="empty-t">Henüz soru eklenmedi</div></div></div>
+        </div>
+      </div>
+      <div class="mini-grid">
+        <div class="mini-card"><div class="mini-v" style="color:var(--gr)" id="dSyncN">0</div><div class="mini-l">☁ Supabase'de</div></div>
+        <div class="mini-card"><div class="mini-v" style="color:#7A5E10" id="dLocalN">0</div><div class="mini-l">💾 Yüklenmedi</div></div>
+        <div class="mini-card"><div class="mini-v" style="color:var(--p)" id="dSheetsN">—</div><div class="mini-l">📊 Sheets Yedek</div></div>
+      </div>
+    </div>
+
+    <!-- SORU EKLE -->
+    <div class="sec" id="sec-add">
+      <div class="g31">
+        <div class="card">
+          <div class="tab-bar">
+            <button class="tabbtn active" id="tab-form" onclick="switchTab('form')">📝 Form ile Ekle</button>
+            <button class="tabbtn" id="tab-json" onclick="switchTab('json')">{ } JSON Yapıştır</button>
+          </div>
+
+          <!-- FORM TAB -->
+          <div id="formPanel" class="cb">
+            <div class="infobox">⚠️ ÖSYM kaynaklı soru ekleme yasak — telif ihlali. Sadece özgün, kendi yazdığın sorular ekle.</div>
+
+            <div class="fg"><label class="fl">Soru Metni *</label>
+              <textarea class="ft" id="qText" placeholder="KPSS tarzı özgün soru metni..." style="min-height:100px" oninput="saveFormState();updatePreview()"></textarea></div>
+
+            <div class="fr2">
+              <div class="fg"><label class="fl">Ders</label>
+                <select class="fs" id="qSubj" onchange="saveFormState();updatePreview()">
+                  <option value="turkce">📝 Türkçe</option><option value="matematik">🔢 Matematik</option>
+                  <option value="tarih">🏛️ Tarih</option><option value="cografya">🗺️ Coğrafya</option>
+                  <option value="vatandaslik">⚖️ Vatandaşlık</option><option value="guncel">📰 Güncel</option><option value="din">☪️ Din Kültürü</option>
+                </select></div>
+              <div class="fg"><label class="fl">Sınav Türü</label>
+                <select class="fs" id="qExam" onchange="saveFormState()">
+                  <option value="kpss_lisans">KPSS Lisans</option><option value="kpss_ortaogretim">KPSS Ortaöğretim</option>
+                </select></div>
+            </div>
+
+            <div class="fg"><label class="fl">Zorluk</label>
+              <div class="cg" id="diffGrp">
+                <button class="chip easy sel" onclick="setDiff('easy',this)">🟢 Kolay</button>
+                <button class="chip medium" onclick="setDiff('medium',this)">🟡 Orta</button>
+                <button class="chip hard" onclick="setDiff('hard',this)">🔴 Zor</button>
+              </div></div>
+
+            <div class="fg"><label class="fl" style="display:flex;justify-content:space-between">
+              <span>Seçenekler *</span><span style="font-size:10px;color:var(--mu);text-transform:none;letter-spacing:0;font-weight:600">● Doğru cevabı işaretle</span></label>
+              <div class="or"><div class="ok" id="ok-A">A</div><input class="oi" id="oA" placeholder="A şıkkı..." oninput="saveFormState();updatePreview()"><input type="radio" name="ans" value="a" class="ora" onchange="setAns('A')"></div>
+              <div class="or"><div class="ok" id="ok-B">B</div><input class="oi" id="oB" placeholder="B şıkkı..." oninput="saveFormState();updatePreview()"><input type="radio" name="ans" value="b" class="ora" onchange="setAns('B')"></div>
+              <div class="or"><div class="ok" id="ok-C">C</div><input class="oi" id="oC" placeholder="C şıkkı..." oninput="saveFormState();updatePreview()"><input type="radio" name="ans" value="c" class="ora" onchange="setAns('C')"></div>
+              <div class="or"><div class="ok" id="ok-D">D</div><input class="oi" id="oD" placeholder="D şıkkı..." oninput="saveFormState();updatePreview()"><input type="radio" name="ans" value="d" class="ora" onchange="setAns('D')"></div>
+              <div class="or"><div class="ok" id="ok-E">E</div><input class="oi" id="oE" placeholder="E şıkkı (opsiyonel)..." oninput="saveFormState();updatePreview()"><input type="radio" name="ans" value="e" class="ora" onchange="setAns('E')"></div>
+            </div>
+
+            <div class="fg"><label class="fl">Canonical Açıklama * <span style="color:var(--co)"></span></label>
+              <textarea class="ft" id="qExp" placeholder="AI güvenlik için zorunlu — doğru cevabın açıklaması..." oninput="saveFormState()"></textarea></div>
+
+            <div class="fr2">
+              <div class="fg"><label class="fl">Durum</label>
+                <select class="fs" id="qStat" onchange="saveFormState()"><option value="approved">✅ Onaylı</option><option value="pending_review">⏳ Bekliyor</option></select></div>
+              <div class="fg"><label class="fl">Kaynak</label>
+                <select class="fs" id="qSrc" onchange="saveFormState()"><option value="original_editor">✍️ Editör Özgün</option><option value="ai_generated_reviewed">🤖 AI + Onaylı</option></select></div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:9px;margin-bottom:14px">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:600;color:var(--is)">
+                <input type="checkbox" id="autoSync" checked style="accent-color:var(--p);width:16px;height:16px">
+                Kaydedince anında Supabase'e yükle</label>
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:600;color:var(--is)">
+                <input type="checkbox" id="sheetsSync" style="accent-color:var(--p);width:16px;height:16px">
+                Google Sheets'e de yedekle</label>
+            </div>
+
+            <button class="bpr" id="saveBtn" onclick="saveQ()">✅ Kaydet & Yükle</button>
+            <button class="bsc" onclick="resetForm()">🔄 Formu Temizle</button>
+          </div>
+
+          <!-- JSON TAB -->
+          <div id="jsonPanel" class="cb" style="display:none">
+            <div class="infobox">📋 JSON formatında yapıştır. Tek { } obje veya [ ] dizi kabul edilir.</div>
+            <textarea class="ft" id="jsonIn" style="min-height:280px;font-family:monospace;font-size:12px" placeholder='{"question_text":"...","option_a":"...","option_b":"...","option_c":"...","option_d":"...","correct_option":"a","subject":"turkce","difficulty":"medium","canonical_explanation":"..."}'></textarea>
+            <button class="bpr" style="margin-top:12px" onclick="importJSON()">📤 İçe Aktar</button>
+          </div>
+        </div>
+
+        <!-- PREVIEW -->
+        <div>
+          <div class="card" style="position:sticky;top:80px">
+            <div class="ch"><div><div class="ct">👁 Önizleme</div><div class="csub">Uygulama görünümü</div></div></div>
+            <div class="cb">
+              <div class="prev-phone">
+                <div class="prev-lbl" id="prevLbl">📝 Türkçe · Kolay · ✓ Editör</div>
+                <div class="prev-q" id="prevQ">Soru yazılmayı bekliyor...</div>
+                <div class="prev-opts" id="prevOpts"><div class="prev-opt"><span class="prev-key">A</span>—</div><div class="prev-opt"><span class="prev-key">B</span>—</div></div>
+              </div>
+              <div style="font-size:11px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Özet</div>
+              <div class="sum-row"><span class="sum-lbl">Ders</span><span class="sum-val" id="prevSubj">Türkçe</span></div>
+              <div class="sum-row"><span class="sum-lbl">Zorluk</span><span class="sum-val" id="prevDiff">Kolay</span></div>
+              <div class="sum-row"><span class="sum-lbl">Doğru Cevap</span><span class="sum-val" style="color:var(--gr)" id="prevAns">—</span></div>
+              <div id="formSavedIndicator" style="font-size:11px;color:var(--gr);font-weight:600;margin-top:8px;display:none">💾 Taslak kaydedildi</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SORU LİSTESİ -->
+    <div class="sec" id="sec-list">
+      <div class="card">
+        <div class="fb">
+          <div class="sw"><span class="si-ico">🔍</span><input class="si" id="searchInput" placeholder="Soru metni ara..." oninput="fSearch(this.value)"></div>
+          <select class="fsel" onchange="fSubj(this.value)"><option value="">Tüm dersler</option>
+            <option value="turkce">Türkçe</option><option value="matematik">Matematik</option>
+            <option value="tarih">Tarih</option><option value="cografya">Coğrafya</option><option value="vatandaslik">Vatandaşlık</option></select>
+          <select class="fsel" onchange="fStat(this.value)"><option value="">Tüm durumlar</option>
+            <option value="approved">Onaylı</option><option value="pending_review">Bekleyen</option></select>
+          <select class="fsel" onchange="fSyncF(this.value)"><option value="">Tüm sync</option>
+            <option value="synced">Senkronize</option><option value="local">Yerel</option></select>
+        </div>
+        <div class="tw">
+          <table><thead><tr>
+            <th>#</th><th>Soru</th><th>Ders</th><th>Zorluk</th><th>Durum</th><th>Sync</th><th>Doğru</th><th>Tarih</th><th>İşlem</th>
+          </tr></thead><tbody id="tbody"></tbody></table>
+        </div>
+        <div style="padding:13px 22px;border-top:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center;background:#faf9f5">
+          <span style="font-size:12px;color:var(--mu);font-weight:600" id="tCount">0 soru</span>
+          <div style="display:flex;gap:7px">
+            <button class="ab" onclick="expCSV()">📥 CSV</button>
+            <button class="ab" onclick="expJSON()">📥 JSON</button>
+            <button class="ab sync-btn-ab" onclick="syncAll()">☁ Tümünü Yükle</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUPABASE -->
+    <div class="sec" id="sec-supabase">
+      <div style="max-width:580px;display:flex;flex-direction:column;gap:18px">
+        <div class="card">
+          <div class="ch"><div><div class="ct">🔗 Supabase Bağlantısı</div><div class="csub">Proje kimlik bilgileri</div></div></div>
+          <div class="cb">
+            <div class="infobox-p infobox">🔑 Admin panel <strong>service_role</strong> key kullanır (RLS bypass). anon key değil!</div>
+            <div class="fg"><label class="fl">Project URL</label><input class="fi" id="sbUrl" placeholder="https://xxxx.supabase.co" type="url"></div>
+            <div class="fg"><label class="fl">Service Role Key <span style="color:var(--co)">*</span></label>
+              <input class="fi" id="sbKey" placeholder="eyJhbGci... (Settings → API → service_role)" type="password">
+              <div style="font-size:11px;color:var(--co);font-weight:600;margin-top:5px">⚠️ service_role key — gizli tut! Sadece bu panelde kullan.</div></div>
+            <button class="bpr" onclick="saveSB()">💾 Kaydet</button>
+            <button class="bsc" onclick="testSB()">🔗 Bağlantıyı Test Et</button>
+            <div class="conn-box conn-idle" id="sbStatus">⏳ Test edilmedi</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ch"><div class="ct">📋 Kurulum</div></div>
+          <div class="cb">
+            <div class="step-list">
+              <div class="step-i"><div class="step-n done">1</div><div>supabase.com → NetUP projesi → <strong>Settings → API</strong></div></div>
+              <div class="step-i"><div class="step-n done">2</div><div>Project URL'i kopyala → yukarıya yapıştır</div></div>
+              <div class="step-i"><div class="step-n act">3</div><div><strong>service_role</strong> key'i kopyala (anon değil!) → yapıştır</div></div>
+              <div class="step-i"><div class="step-n idle">4</div><div>Kaydet → Test Et → Yeşil görünce hazır!</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GOOGLE SHEETS -->
+    <div class="sec" id="sec-sheets">
+      <div style="max-width:620px;display:flex;flex-direction:column;gap:18px">
+        <div class="card">
+          <div class="ch"><div><div class="ct">📊 Google Sheets Yedek</div><div class="csub">Otomatik yedekleme</div></div></div>
+          <div class="cb">
+            <div class="infobox">📋 Apps Script aracılığıyla tüm soruları Sheets'e yedekle. Ana veri Supabase'de kalır.</div>
+            <div class="fg"><label class="fl">Apps Script Web App URL</label><input class="fi" id="shUrl" placeholder="https://script.google.com/macros/s/.../exec" type="url"></div>
+            <button class="bpr" onclick="saveSH()">💾 Kaydet</button>
+            <button class="bsc" onclick="backupNow()">📤 Tüm Soruları Yedekle</button>
+            <div class="conn-box conn-idle" id="shStatus">⏳ Test edilmedi</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ch"><div class="ct">🛠 Apps Script Kurulumu</div></div>
+          <div class="cb">
+            <div style="font-size:13px;color:var(--is);line-height:1.8;margin-bottom:10px">
+              <strong>1.</strong> Google Sheets aç → <strong>Extensions → Apps Script</strong><br>
+              <strong>2.</strong> Kodu yapıştır → <strong>SHEETS_ID</strong>'yi değiştir<br>
+              <strong>3.</strong> Deploy → Web App → Anyone → URL'i kopyala
+            </div>
+            <div class="code-box"><button class="code-copy" onclick="copyCode()">Kopyala</button><pre id="shCode">function doPost(e) {
+  var ss = SpreadsheetApp.openById('SHEETS_ID');
+  var sheet = ss.getSheetByName('Questions') || ss.insertSheet('Questions');
+  var data = JSON.parse(e.postData.contents);
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(['ID','Soru','A','B','C','D','E','Doğru','Ders','Zorluk','Durum','Açıklama','Tarih']);
+  }
+  data.forEach(function(q) {
+    sheet.appendRow([q.id,q.question_text,q.option_a,q.option_b,q.option_c,q.option_d,q.option_e||'',q.correct_option,q.subject,q.difficulty,q.status,q.canonical_explanation||'',q.created_at]);
+  });
+  return ContentService.createTextOutput(JSON.stringify({ok:true,count:data.length})).setMimeType(ContentService.MimeType.JSON);
+}
+function doGet(e){return doPost(e);}</pre></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOPLU AKTAR -->
+    <div class="sec" id="sec-bulk">
+      <div class="card" style="max-width:680px">
+        <div class="ch"><div><div class="ct">📤 Toplu İçe Aktar</div><div class="csub">CSV veya JSON ile çoklu soru</div></div></div>
+        <div class="cb">
+          <div class="infobox">CSV sütunları: question_text, option_a, option_b, option_c, option_d, option_e (opsiyonel), correct_option, subject, difficulty, canonical_explanation</div>
+          <div class="drop-z" id="dropZ" onclick="document.getElementById('fileIn').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleDrop(event)">
+            <span style="font-size:40px;display:block;margin-bottom:12px">📁</span>
+            <div style="font-size:15px;font-weight:700;color:var(--is)">CSV veya JSON dosyası sürükle</div>
+            <div style="font-size:12px;color:var(--mu);margin-top:4px">veya tıkla seç</div>
+            <input type="file" id="fileIn" accept=".csv,.json" style="display:none" onchange="handleFile(this)">
+          </div>
+          <div id="bulkPrev" style="display:none">
+            <div style="font-size:13px;font-weight:700;margin-bottom:10px" id="bulkCnt"></div>
+            <div id="bulkContent"></div>
+            <button class="bpr" onclick="importBulk()">✅ Tümünü İçe Aktar & Yükle</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AYARLAR -->
+    <div class="sec" id="sec-settings">
+      <div style="max-width:480px;display:flex;flex-direction:column;gap:18px">
+        <div class="card">
+          <div class="ch"><div class="ct">🔐 Giriş Bilgileri</div></div>
+          <div class="cb">
+            <div class="fg"><label class="fl">Kullanıcı Adı</label><input class="fi" id="setUser"></div>
+            <div class="fg"><label class="fl">Yeni Şifre</label><input class="fi" id="setPass" type="password" placeholder="Boş bırakırsan değişmez"></div>
+            <div class="fg"><label class="fl">Şifre Tekrar</label><input class="fi" id="setPass2" type="password"></div>
+            <button class="bpr" onclick="saveCreds()">💾 Güncelle</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ch"><div class="ct">🗃 Veri Yönetimi</div></div>
+          <div class="cb">
+            <button class="bsc" onclick="expJSON()">📥 Tüm Soruları JSON İndir</button>
+            <button class="bsc" onclick="expCSV()">📥 Tüm Soruları CSV İndir</button>
+            <button class="bsc danger" onclick="clearData()">⚠️ Yerel Veriyi Temizle</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ch"><div class="ct">ℹ️ Hakkında</div></div>
+          <div class="cb" style="font-size:13px;color:var(--is);line-height:1.8">
+            <div><strong>NetUP Admin</strong> v5.0</div>
+            <div>Supabase: service_role key ile RLS bypass</div>
+            <div>Form durumu: sessionStorage ile korunur</div>
+            <div>Oturum: sessionStorage ile kalıcı (F5 korumalı)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TOASTS -->
+<div id="toastWrap"></div>
+
+<script>
+const SUBS={turkce:{n:'Türkçe',e:'📝'},matematik:{n:'Matematik',e:'🔢'},tarih:{n:'Tarih',e:'🏛️'},cografya:{n:'Coğrafya',e:'🗺️'},vatandaslik:{n:'Vatandaşlık',e:'⚖️'},guncel:{n:'Güncel',e:'📰'},din:{n:'Din Kültürü',e:'☪️'}};
+const DIFF={easy:'Kolay',medium:'Orta',hard:'Zor'};
+const SMAP={approved:'Onaylı',pending_review:'Bekliyor',flagged:'Raporlanan'};
+
+let qs=[],cfg={},creds={user:'admin',pass:'netup2024'};
+let curDiff='easy',curAns=null;
+let fs2='',fsubj='',fstat='',fsync='';
+
+function uid(){return'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==='x'?r:(r&0x3|0x8)).toString(16)})}
+
+// ── INIT ──
+window.addEventListener('load',()=>{
+  qs=JSON.parse(localStorage.getItem('nu_qs')||'[]');
+  cfg=JSON.parse(localStorage.getItem('nu_cfg')||'{}');
+  creds=JSON.parse(localStorage.getItem('nu_creds')||'{"user":"admin","pass":"netup2024"}');
+  makeBg();
+  // Oturum kontrolü — sessionStorage ile F5'te bile korunur
+  if(sessionStorage.getItem('nu_auth')===creds.user){
+    showApp();
+  }
+  document.getElementById('lu').focus();
+});
+
+function makeBg(){
+  // login arka planı zaten CSS ile yapıldı
+}
+
+// ── AUTH ──
+function login(){
+  const u=document.getElementById('lu').value.trim();
+  const p=document.getElementById('lp').value;
+  const btn=document.getElementById('lbtn');
+  btn.innerHTML='<span class="spinner"></span> Giriş yapılıyor...';
+  btn.disabled=true;
+  setTimeout(()=>{
+    if(u===creds.user&&p===creds.pass){
+      sessionStorage.setItem('nu_auth',u);
+      showApp();
+    }else{
+      document.getElementById('lerr').style.display='block';
+      btn.innerHTML='Giriş Yap →';btn.disabled=false;
+      setTimeout(()=>document.getElementById('lerr').style.display='none',3500);
+    }
+  },500);
+}
+
+function showApp(){
+  document.getElementById('loginWrap').style.display='none';
+  document.getElementById('sidebar').style.display='flex';
+  document.getElementById('mainApp').style.display='flex';
+  document.getElementById('slUser').textContent=creds.user;
+  document.getElementById('slAv').textContent=creds.user[0].toUpperCase();
+  document.getElementById('setUser').value=creds.user;
+  loadConfig();
+  restoreFormState();
+  updateDash();
+  updateConnBadge();
+}
+
+function logout(){
+  if(!confirm('Çıkmak istediğine emin misin?'))return;
+  sessionStorage.removeItem('nu_auth');
+  location.reload();
+}
+
+function saveCreds(){
+  const u=document.getElementById('setUser').value.trim();
+  const p=document.getElementById('setPass').value;
+  const p2=document.getElementById('setPass2').value;
+  if(p&&p!==p2){toast('❌ Şifreler eşleşmiyor!','error');return}
+  if(u)creds.user=u;
+  if(p)creds.pass=p;
+  localStorage.setItem('nu_creds',JSON.stringify(creds));
+  sessionStorage.setItem('nu_auth',creds.user);
+  toast('✅ Bilgiler güncellendi!','success');
+}
+
+// ── NAV ──
+const META={dashboard:{t:'Dashboard',s:'Genel bakış ve istatistikler'},add:{t:'Soru Ekle',s:'Yeni özgün KPSS sorusu oluştur'},list:{t:'Soru Listesi',s:'Tüm soruları görüntüle ve yönet'},supabase:{t:'Supabase Bağlantısı',s:'Veritabanı entegrasyonu — service_role key gerekli'},sheets:{t:'Google Sheets',s:'Otomatik yedekleme'},bulk:{t:'Toplu İçe Aktar',s:'CSV veya JSON ile soru yükle'},settings:{t:'Ayarlar',s:'Panel güvenlik ve veri ayarları'}};
+
+function goTo(id,btn){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  else document.querySelectorAll('.ni').forEach(n=>{if(n.getAttribute('onclick')?.includes(`'${id}'`))n.classList.add('active')});
+  const m=META[id]||{t:id,s:''};
+  document.getElementById('tbTitle').textContent=m.t;
+  document.getElementById('tbSub').textContent=m.s;
+  if(id==='dashboard')updateDash();
+  if(id==='list')renderTable();
+}
+
+function switchTab(t){
+  ['form','json'].forEach(x=>{document.getElementById('tab-'+x).classList.toggle('active',x===t);document.getElementById(x+'Panel').style.display=x===t?'':'none'});
+}
+
+// ── FORM STATE (sessionStorage ile — F5'te sıfırlanır, sayfa geçişinde korunur) ──
+function saveFormState(){
+  const state={
+    qText:document.getElementById('qText').value,
+    qSubj:document.getElementById('qSubj').value,
+    qExam:document.getElementById('qExam').value,
+    oA:document.getElementById('oA').value,
+    oB:document.getElementById('oB').value,
+    oC:document.getElementById('oC').value,
+    oD:document.getElementById('oD').value,
+    oE:document.getElementById('oE').value,
+    qExp:document.getElementById('qExp').value,
+    qStat:document.getElementById('qStat')?.value,
+    qSrc:document.getElementById('qSrc')?.value,
+    curDiff,curAns
+  };
+  sessionStorage.setItem('nu_form',JSON.stringify(state));
+  const ind=document.getElementById('formSavedIndicator');
+  if(ind){ind.style.display='block';clearTimeout(ind._t);ind._t=setTimeout(()=>ind.style.display='none',2000)}
+}
+
+function restoreFormState(){
+  const raw=sessionStorage.getItem('nu_form');
+  if(!raw)return;
+  try{
+    const s=JSON.parse(raw);
+    if(s.qText)document.getElementById('qText').value=s.qText;
+    if(s.qSubj)document.getElementById('qSubj').value=s.qSubj;
+    if(s.qExam)document.getElementById('qExam').value=s.qExam;
+    if(s.oA)document.getElementById('oA').value=s.oA;
+    if(s.oB)document.getElementById('oB').value=s.oB;
+    if(s.oC)document.getElementById('oC').value=s.oC;
+    if(s.oD)document.getElementById('oD').value=s.oD;
+    if(s.oE)document.getElementById('oE').value=s.oE;
+    if(s.qExp)document.getElementById('qExp').value=s.qExp;
+    if(s.qStat)document.getElementById('qStat').value=s.qStat;
+    if(s.qSrc)document.getElementById('qSrc').value=s.qSrc;
+    if(s.curDiff){curDiff=s.curDiff;const chip=document.querySelector(`.chip.${curDiff}`);if(chip)setDiff(curDiff,chip)}
+    if(s.curAns){curAns=s.curAns;const r=document.querySelector(`input[name="ans"][value="${curAns.toLowerCase()}"]`);if(r){r.checked=true;setAns(curAns)}}
+    updatePreview();
+    if(s.qText)toast('📝 Kaydedilmemiş taslak geri yüklendi','info');
+  }catch(e){}
+}
+
+function clearFormState(){sessionStorage.removeItem('nu_form')}
+
+// ── FORM ──
+function setDiff(v,el){
+  curDiff=v;
+  document.querySelectorAll('#diffGrp .chip').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+  document.getElementById('prevDiff').textContent=DIFF[v];
+  saveFormState();updatePreview();
+}
+
+function setAns(k){
+  curAns=k;
+  ['A','B','C','D','E'].forEach(x=>{const el=document.getElementById('ok-'+x);if(el)el.classList.toggle('cor',x===k)});
+  document.getElementById('prevAns').textContent=k;
+  saveFormState();updatePreview();
+}
+
+function updatePreview(){
+  const qt=document.getElementById('qText')?.value||'';
+  document.getElementById('prevQ').textContent=qt||'Soru yazılmayı bekliyor...';
+  const opts=['A','B','C','D','E'].map(k=>({k,t:document.getElementById('o'+k)?.value||''})).filter(o=>o.t);
+  document.getElementById('prevOpts').innerHTML=opts.map(o=>`<div class="prev-opt ${o.k===curAns?'cor':''}"><span class="prev-key">${o.k}</span>${o.t}</div>`).join('')||'<div class="prev-opt"><span class="prev-key">A</span>—</div><div class="prev-opt"><span class="prev-key">B</span>—</div>';
+  const s=SUBS[document.getElementById('qSubj')?.value]||SUBS.turkce;
+  document.getElementById('prevLbl').textContent=`${s.e} ${s.n} · ${DIFF[curDiff]} · ✓ Editör`;
+  document.getElementById('prevSubj').textContent=s.n;
+}
+
+function resetForm(){
+  if(!confirm('Formu temizlemek istediğine emin misin?'))return;
+  document.getElementById('qText').value='';
+  ['A','B','C','D','E'].forEach(k=>{const el=document.getElementById('o'+k);if(el)el.value='';const ok=document.getElementById('ok-'+k);if(ok)ok.classList.remove('cor')});
+  document.querySelectorAll('input[name="ans"]').forEach(r=>r.checked=false);
+  document.getElementById('qExp').value='';
+  curAns=null;document.getElementById('prevAns').textContent='—';
+  setDiff('easy',document.querySelector('.chip.easy'));
+  clearFormState();updatePreview();
+  toast('🔄 Form temizlendi','info');
+}
+
+async function saveQ(){
+  const qt=document.getElementById('qText').value.trim();
+  if(!qt){toast('❌ Soru metni boş olamaz!','error');return}
+  if(!curAns){toast('❌ Doğru cevabı işaretle!','error');return}
+  const exp=document.getElementById('qExp').value.trim();
+  if(!exp){toast('❌ Canonical açıklama zorunlu!','error');return}
+  const oA=document.getElementById('oA').value.trim();
+  const oB=document.getElementById('oB').value.trim();
+  if(!oA||!oB){toast('❌ En az A ve B şıkkı gerekli!','error');return}
+
+  const btn=document.getElementById('saveBtn');
+  btn.innerHTML='<span class="spinner"></span> Kaydediliyor...';btn.disabled=true;
+
+  const q={
+    id:uid(),
+    question_text:qt,
+    option_a:oA,option_b:oB,
+    option_c:document.getElementById('oC').value.trim(),
+    option_d:document.getElementById('oD').value.trim(),
+    option_e:document.getElementById('oE').value.trim()||null,
+    correct_option:curAns.toLowerCase(),
+    subject:document.getElementById('qSubj').value,
+    exam_type:document.getElementById('qExam').value,
+    difficulty:curDiff,
+    source_type:document.getElementById('qSrc').value,
+    status:document.getElementById('qStat').value,
+    canonical_explanation:exp,
+    created_at:new Date().toISOString(),
+    synced:false
+  };
+
+  qs.unshift(q);save();
+
+  const doSync=document.getElementById('autoSync').checked;
+  const doSheets=document.getElementById('sheetsSync').checked;
+
+  if(doSync&&cfg.sbUrl&&cfg.sbKey){
+    await pushToSB([q]);
+  }else if(doSync&&(!cfg.sbUrl||!cfg.sbKey)){
+    toast('⚠️ Supabase ayarları eksik — yerel kaydedildi','warning');
+  }else{
+    toast('💾 Yerel kaydedildi','info');
+  }
+  if(doSheets&&cfg.shUrl)await pushToSheets([q]);
+
+  btn.innerHTML='✅ Kaydet & Yükle';btn.disabled=false;
+  clearFormState();
+  resetFormFields();
+  updateDash();
+}
+
+function resetFormFields(){
+  document.getElementById('qText').value='';
+  ['A','B','C','D','E'].forEach(k=>{const el=document.getElementById('o'+k);if(el)el.value='';const ok=document.getElementById('ok-'+k);if(ok)ok.classList.remove('cor')});
+  document.querySelectorAll('input[name="ans"]').forEach(r=>r.checked=false);
+  document.getElementById('qExp').value='';
+  curAns=null;document.getElementById('prevAns').textContent='—';
+  setDiff('easy',document.querySelector('.chip.easy'));
+  updatePreview();
+}
+
+// ── SUPABASE ──
+async function pushToSB(arr){
+  if(!cfg.sbUrl||!cfg.sbKey)return false;
+  const H={'Content-Type':'application/json','apikey':cfg.sbKey,'Authorization':'Bearer '+cfg.sbKey};
+  let ok=0;
+  for(const q of arr){
+    try{
+      // questions tablosu
+      const qp={
+        question_text:q.question_text,
+        option_a:q.option_a||'',
+        option_b:q.option_b||'',
+        option_c:q.option_c||'',
+        option_d:q.option_d||'',
+        correct_option:q.correct_option,
+        subject:q.subject,
+        exam_type:q.exam_type||'kpss_lisans',
+        difficulty:q.difficulty,
+        source_type:q.source_type||'original_editor',
+        status:q.status||'approved',
+        ai_generated:false
+      };
+      if(q.option_e&&q.option_e.trim())qp.option_e=q.option_e;
+
+      const r1=await fetch(`${cfg.sbUrl}/rest/v1/questions`,{
+        method:'POST',headers:{...H,'Prefer':'return=representation'},body:JSON.stringify(qp)
+      });
+      if(!r1.ok){const e=await r1.text();toast('❌ Soru yükleme: '+e.slice(0,120),'error');continue}
+
+      const inserted=await r1.json();
+      const newId=Array.isArray(inserted)?inserted[0]?.id:inserted?.id;
+
+      // question_explanations tablosu
+      if(newId&&q.canonical_explanation){
+        const r2=await fetch(`${cfg.sbUrl}/rest/v1/question_explanations`,{
+          method:'POST',headers:{...H,'Prefer':'return=minimal'},
+          body:JSON.stringify({question_id:newId,canonical_explanation:q.canonical_explanation,canonical_version:1})
+        });
+        if(!r2.ok){const e2=await r2.text();console.warn('Explanation upload:',e2)}
+      }
+
+      const idx=qs.findIndex(x=>x.id===q.id);
+      if(idx>=0)qs[idx].synced=true;
+      ok++;
+    }catch(e){toast('⚠️ '+e.message,'error')}
+  }
+  if(ok>0){save();toast(`☁ ${ok} soru Supabase'e yüklendi!`,'success');updateSyncBar();return true}
+  return false;
+}
+
+async function syncAll(){
+  const unsync=qs.filter(q=>!q.synced);
+  if(!unsync.length){toast('✅ Tüm sorular senkronize!','success');return}
+  if(!cfg.sbUrl||!cfg.sbKey){toast('❌ Önce Supabase ayarlarını yap!','error');goTo('supabase',null);return}
+  toast(`☁ ${unsync.length} soru yükleniyor...`,'info');
+  await pushToSB(unsync);updateDash();
+}
+
+async function testSB(){
+  if(!cfg.sbUrl||!cfg.sbKey){toast('❌ URL ve Key gerekli!','error');return}
+  const el=document.getElementById('sbStatus');
+  el.className='conn-box conn-idle';el.textContent='🔄 Test ediliyor...';
+  try{
+    const r=await fetch(`${cfg.sbUrl}/rest/v1/questions?select=id&limit=1`,{
+      headers:{'apikey':cfg.sbKey,'Authorization':'Bearer '+cfg.sbKey}
+    });
+    if(r.ok){
+      el.className='conn-box conn-ok';el.textContent='✅ Bağlantı başarılı! Supabase aktif.';
+      updateConnBadge(true);
+      toast('✅ Supabase bağlantısı başarılı!','success');
+    }else{
+      const err=await r.text();
+      el.className='conn-box conn-err';el.textContent='❌ HTTP '+r.status+': '+err.slice(0,100);
+      toast('❌ Bağlantı başarısız: '+r.status,'error');
+    }
+  }catch(e){el.className='conn-box conn-err';el.textContent='❌ '+e.message;toast('❌ '+e.message,'error')}
+}
+
+function saveSB(){
+  cfg.sbUrl=document.getElementById('sbUrl').value.trim().replace(/\/$/,'');
+  cfg.sbKey=document.getElementById('sbKey').value.trim();
+  localStorage.setItem('nu_cfg',JSON.stringify(cfg));
+  updateConnBadge();
+  toast('💾 Supabase ayarları kaydedildi!','success');
+}
+
+function updateConnBadge(ok){
+  const el=document.getElementById('connBadge');
+  const dot=document.getElementById('slDot');
+  const st=document.getElementById('slStatus');
+  if(ok||cfg.sbUrl){
+    el.className='conn-badge ok';el.textContent='🟢 Supabase bağlı';
+    dot.className='sl-dot ok';st.textContent='Supabase bağlı';
+  }else{
+    el.className='conn-badge idle';el.textContent='⚪ Bağlantı yok';
+    dot.className='sl-dot idle';st.textContent='Bağlantı yok';
+  }
+}
+
+// ── SHEETS ──
+async function pushToSheets(arr){
+  if(!cfg.shUrl)return;
+  try{await fetch(cfg.shUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(arr)});toast('📊 Sheets\'e yedeklendi!','success')}
+  catch(e){toast('⚠️ Sheets: '+e.message,'warning')}
+}
+async function backupNow(){
+  if(!cfg.shUrl){toast('❌ Apps Script URL gerekli!','error');return}
+  toast(`📊 ${qs.length} soru yedekleniyor...`,'info');
+  await pushToSheets(qs);
+}
+function saveSH(){
+  cfg.shUrl=document.getElementById('shUrl').value.trim();
+  localStorage.setItem('nu_cfg',JSON.stringify(cfg));
+  toast('💾 Sheets ayarı kaydedildi!','success');
+  document.getElementById('dSheetsN').textContent=cfg.shUrl?'✓':'—';
+}
+function copyCode(){navigator.clipboard?.writeText(document.getElementById('shCode').textContent).then(()=>toast('📋 Kod kopyalandı!','success'))}
+
+function loadConfig(){
+  if(cfg.sbUrl)document.getElementById('sbUrl').value=cfg.sbUrl;
+  if(cfg.sbKey)document.getElementById('sbKey').value=cfg.sbKey;
+  if(cfg.shUrl)document.getElementById('shUrl').value=cfg.shUrl;
+}
+
+// ── DASHBOARD ──
+function updateDash(){
+  const total=qs.length,synced=qs.filter(q=>q.synced).length,pend=qs.filter(q=>q.status==='pending_review').length,flag=qs.filter(q=>q.status==='flagged').length;
+  document.getElementById('dTotal').textContent=total;
+  document.getElementById('dSync').textContent=synced;
+  document.getElementById('dPend').textContent=pend;
+  document.getElementById('dFlag').textContent=flag;
+  document.getElementById('dSyncN').textContent=synced;
+  document.getElementById('dLocalN').textContent=total-synced;
+  document.getElementById('dSheetsN').textContent=cfg.shUrl?'✓':'—';
+  document.getElementById('navBadge').textContent=total;
+  updateSyncBar();
+
+  const counts={};qs.forEach(q=>{counts[q.subject]=(counts[q.subject]||0)+1});
+  const max=Math.max(...Object.values(counts),1);
+  const chartEl=document.getElementById('dChart');
+  if(!total){chartEl.innerHTML='<div class="empty"><span class="empty-ico">📊</span><div>Henüz soru yok</div></div>';return}
+  chartEl.innerHTML=Object.entries(SUBS).map(([k,s])=>{const c=counts[k]||0;return`<div class="chart-row"><div class="chart-lbl">${s.e} ${s.n}</div><div class="chart-bw"><div class="chart-bf" style="width:${Math.round(c/max*100)}%"></div></div><div class="chart-cnt">${c}</div></div>`}).join('');
+
+  const recentEl=document.getElementById('dRecent');
+  if(!qs.length){recentEl.innerHTML='<div class="empty"><span class="empty-ico">📝</span><div>Henüz soru eklenmedi</div></div>';return}
+  recentEl.innerHTML=qs.slice(0,5).map(q=>`<div class="ri"><div style="flex:1;overflow:hidden"><div class="ri-q">${q.question_text}</div><div class="ri-m">${SUBS[q.subject]?.e} ${SUBS[q.subject]?.n} · ${DIFF[q.difficulty]}</div></div><span class="badge ${q.status==='approved'?'bg':'ba'}">${SMAP[q.status]||q.status}</span><span class="badge ${q.synced?'bp':'bm'}">${q.synced?'☁':'💾'}</span></div>`).join('');
+}
+
+function updateSyncBar(){
+  const unsync=qs.filter(q=>!q.synced).length;
+  const bar=document.getElementById('syncBar');
+  if(unsync>0&&cfg.sbUrl){bar.style.display='flex';document.getElementById('syncTxt').textContent=`${unsync} soru Supabase'e yüklenmedi`}
+  else bar.style.display='none';
+}
+
+// ── TABLE ──
+function renderTable(){
+  let f=[...qs];
+  if(fs2)f=f.filter(q=>q.question_text.toLowerCase().includes(fs2.toLowerCase()));
+  if(fsubj)f=f.filter(q=>q.subject===fsubj);
+  if(fstat)f=f.filter(q=>q.status===fstat);
+  if(fsync==='synced')f=f.filter(q=>q.synced);
+  if(fsync==='local')f=f.filter(q=>!q.synced);
+  document.getElementById('tCount').textContent=f.length+' soru';
+  if(!f.length){document.getElementById('tbody').innerHTML='<tr><td colspan="9" style="text-align:center;padding:40px"><div class="empty" style="padding:0"><span class="empty-ico">🔍</span><div class="empty-t">Soru bulunamadı</div></div></td></tr>';return}
+  document.getElementById('tbody').innerHTML=f.map((q,i)=>`<tr>
+    <td style="font-size:11px;color:var(--mu);font-weight:600">${i+1}</td>
+    <td><div class="tdm">${q.question_text}</div><div class="tds">${new Date(q.created_at).toLocaleDateString('tr-TR')}</div></td>
+    <td><span class="badge bp">${SUBS[q.subject]?.e} ${SUBS[q.subject]?.n}</span></td>
+    <td><span class="badge ${q.difficulty==='easy'?'bg':q.difficulty==='medium'?'ba':'bc'}">${DIFF[q.difficulty]}</span></td>
+    <td><span class="badge ${q.status==='approved'?'bg':'ba'}">${SMAP[q.status]||q.status}</span></td>
+    <td><span class="badge ${q.synced?'bp':'bm'}">${q.synced?'☁ Sync':'💾 Yerel'}</span></td>
+    <td><span style="font-size:14px;font-weight:800;color:var(--p)">${q.correct_option?.toUpperCase()}</span></td>
+    <td style="white-space:nowrap;font-size:11px">${new Date(q.created_at).toLocaleDateString('tr-TR')}</td>
+    <td><div style="display:flex;gap:4px">
+      <button class="ab approve" onclick="aprQ('${q.id}')" title="Onayla">✓</button>
+      <button class="ab edit" onclick="editQ('${q.id}')" title="Düzenle">✏️</button>
+      ${!q.synced?`<button class="ab sync-btn-ab" onclick="syncOne('${q.id}')" title="Supabase'e yükle">☁</button>`:''}
+      <button class="ab del" onclick="delQ('${q.id}')" title="Sil">🗑</button>
+    </div></td>
+  </tr>`).join('');
+}
+
+function fSearch(v){fs2=v;renderTable()}
+function fSubj(v){fsubj=v;renderTable()}
+function fStat(v){fstat=v;renderTable()}
+function fSyncF(v){fsync=v;renderTable()}
+
+function aprQ(id){const q=qs.find(x=>x.id===id);if(!q)return;q.status='approved';save();renderTable();toast('✅ Onaylandı!','success')}
+async function syncOne(id){const q=qs.find(x=>x.id===id);if(!q)return;await pushToSB([q]);renderTable()}
+function delQ(id){if(!confirm('Bu soruyu silmek istediğine emin misin?'))return;qs=qs.filter(q=>q.id!==id);save();renderTable();updateDash();toast('🗑 Silindi','warning')}
+
+function editQ(id){
+  const q=qs.find(x=>x.id===id);if(!q)return;
+  goTo('add',null);
+  document.getElementById('qText').value=q.question_text;
+  ['a','b','c','d','e'].forEach(k=>{const el=document.getElementById('o'+k.toUpperCase());if(el)el.value=q['option_'+k]||''});
+  document.getElementById('qExp').value=q.canonical_explanation||'';
+  document.getElementById('qSubj').value=q.subject;
+  document.getElementById('qExam').value=q.exam_type||'kpss_lisans';
+  document.getElementById('qStat').value=q.status;
+  if(q.correct_option){const r=document.querySelector(`input[name="ans"][value="${q.correct_option}"]`);if(r){r.checked=true;setAns(q.correct_option.toUpperCase())}}
+  const chip=document.querySelector(`.chip.${q.difficulty}`);if(chip)setDiff(q.difficulty,chip);
+  qs=qs.filter(x=>x.id!==id);save();
+  updatePreview();saveFormState();
+  toast('✏️ Düzenleme modunda — soru listeden çıkarıldı','info');
+}
+
+// ── IMPORT ──
+function importJSON(){
+  try{
+    let data=JSON.parse(document.getElementById('jsonIn').value);
+    if(!Array.isArray(data))data=[data];
+    data.forEach(q=>qs.unshift({id:uid(),...q,created_at:new Date().toISOString(),synced:false,status:q.status||'pending_review'}));
+    save();toast(`✅ ${data.length} soru içe aktarıldı!`,'success');
+    switchTab('form');updateDash();
+  }catch(e){toast('❌ JSON hatalı: '+e.message,'error')}
+}
+function handleDrop(e){e.preventDefault();document.getElementById('dropZ').classList.remove('drag');const f=e.dataTransfer.files[0];if(f)processFile(f)}
+function handleFile(input){const f=input.files[0];if(f)processFile(f)}
+function processFile(file){
+  const r=new FileReader();
+  r.onload=e=>{
+    if(file.name.endsWith('.json')){document.getElementById('jsonIn').value=e.target.result;goTo('add',null);switchTab('json')}
+    else if(file.name.endsWith('.csv')){
+      const rows=e.target.result.split('\n').map(r=>r.split(',').map(c=>c.trim().replace(/^"|"$/g,'')));
+      const headers=rows[0];
+      const data=rows.slice(1).filter(r=>r.length>3).map(r=>{const o={};headers.forEach((h,i)=>o[h]=r[i]||'');return o});
+      window._bulk=data;
+      document.getElementById('bulkPrev').style.display='';
+      document.getElementById('bulkCnt').textContent=`📋 ${data.length} soru bulundu`;
+      document.getElementById('bulkContent').innerHTML=data.slice(0,3).map(d=>`<div style="padding:10px 12px;background:var(--bg);border-radius:10px;font-size:12px;color:var(--is);margin-bottom:7px">${d.question_text||'—'}</div>`).join('')+(data.length>3?`<div style="font-size:11px;color:var(--mu);margin-bottom:12px">+${data.length-3} soru daha...</div>`:'');
+    }
+  };r.readAsText(file);
+}
+async function importBulk(){
+  const data=window._bulk;if(!data?.length)return;
+  data.forEach(q=>qs.unshift({id:uid(),...q,created_at:new Date().toISOString(),synced:false,status:q.status||'pending_review'}));
+  save();
+  if(cfg.sbUrl&&cfg.sbKey)await pushToSB(qs.filter(q=>!q.synced));
+  toast(`✅ ${data.length} soru aktarıldı!`,'success');
+  document.getElementById('bulkPrev').style.display='none';updateDash();
+}
+
+// ── EXPORT ──
+function expJSON(){
+  const b=new Blob([JSON.stringify(qs,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`netup-sorular-${Date.now()}.json`;a.click();
+  toast('📥 JSON indirildi!','success');
+}
+function expCSV(){
+  const h=['id','question_text','option_a','option_b','option_c','option_d','option_e','correct_option','subject','difficulty','status','canonical_explanation','created_at'];
+  const rows=[h.join(','),...qs.map(q=>h.map(k=>`"${(q[k]||'').toString().replace(/"/g,'""')}"`).join(','))];
+  const b=new Blob([rows.join('\n')],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`netup-sorular-${Date.now()}.csv`;a.click();
+  toast('📥 CSV indirildi!','success');
+}
+function clearData(){
+  if(!confirm('TÜM yerel soru verisini silmek istediğine emin misin?\n\nBu işlem geri alınamaz!'))return;
+  qs=[];save();updateDash();toast('🗑 Yerel veri temizlendi','warning');
+}
+
+// ── SAVE ──
+function save(){
+  localStorage.setItem('nu_qs',JSON.stringify(qs));
+  document.getElementById('navBadge').textContent=qs.length;
+}
+
+// ── TOAST ──
+function toast(msg,type='info'){
+  const icons={success:'✅',error:'❌',warning:'⚠️',info:'ℹ️'};
+  const el=document.createElement('div');
+  el.className=`toast ${type}`;
+  el.innerHTML=`<span class="toast-ico">${icons[type]||'ℹ️'}</span><span class="toast-txt">${msg}</span><button class="toast-x" onclick="this.parentElement.remove()">×</button>`;
+  document.getElementById('toastWrap').appendChild(el);
+  setTimeout(()=>{el.classList.add('rm');setTimeout(()=>el.remove(),350)},4500);
+}
+</script>
+</body>
+</html>
